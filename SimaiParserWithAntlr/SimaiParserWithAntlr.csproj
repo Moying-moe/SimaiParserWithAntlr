@@ -6,4 +6,10 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Compile Remove="StructureLayerParser\**" />
+    <EmbeddedResource Remove="StructureLayerParser\**" />
+    <None Remove="StructureLayerParser\**" />
+  </ItemGroup>
+
 </Project>
