@@ -363,3 +363,6 @@ MigrationBackup/
 FodyWeavers.xsd
 
 Generated/
+.idea/
+.git/
+gen/
