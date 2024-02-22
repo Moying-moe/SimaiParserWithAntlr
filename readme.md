@@ -6,28 +6,28 @@ The goal of this project is to create a high-performance and user-friendly error
 
 # Build
 
-## Requirement
+## Requirements
 
 - Antlr 4.13.1
 - Visual Studio 2022
 
-Make sure you can access Antlr4 in the shell. Check it by running this command:
+Ensure that you have access to Antlr4 in the shell. Verify this by running the following command:
 
 ```shell
 antlr4
 ```
 
-## Generate code by Antlr4
+## Generating Code with Antlr4
 
-Run `generate.sh` in `SimaiParserWithAntlr/NoteLayerParser`.
+Execute `generate.sh` located in `SimaiParserWithAntlr/NoteLayerParser`.
 
-## Build the SimaiParserWithAntlr project
+## Building the SimaiParserWithAntlr Project
 
-[to be continue...]
+[to be continued...]
 
 # License
 
-This project is licensed under the terms of the MIT License. See the `LICENSE.txt` for details.
+This project is licensed under the terms of the MIT License. Refer to `LICENSE.txt` for details.
 
 ## Third-Party Licenses
 
