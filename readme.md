@@ -24,3 +24,11 @@ Run `generate.sh` in `SimaiParserWithAntlr/NoteLayerParser`.
 ## Build the SimaiParserWithAntlr project
 
 [to be continue...]
+
+# License
+
+This project is licensed under the terms of the MIT License. See the `LICENSE.txt` for details.
+
+## Third-Party Licenses
+
+This project utilizes third-party packages. Please review the respective license files in the LICENSE directory for details regarding the licensing terms of each package.
