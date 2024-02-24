@@ -4,11 +4,11 @@ namespace SimaiParserWithAntlr.DataModels;
 
 public class ErrorInfo : BaseExceptionInfo
 {
-    public ErrorInfo(TextPosition start, TextPosition stop, I18nKeyEnum key) : base(start, stop, key)
+    public ErrorInfo(TextPositionRange range, I18nKeyEnum key) : base(range, key)
     {
     }
 
-    public ErrorInfo(TextPosition start, TextPosition stop, I18nKeyEnum key, params object[] args) : base(start, stop, key, args)
+    public ErrorInfo(TextPositionRange range, I18nKeyEnum key, params object[] args) : base(range, key, args)
     {
     }
 }

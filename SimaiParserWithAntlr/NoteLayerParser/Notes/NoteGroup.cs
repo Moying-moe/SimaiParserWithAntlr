@@ -1,4 +1,6 @@
-﻿namespace SimaiParserWithAntlr.NoteLayerParser.Notes;
+﻿using SimaiParserWithAntlr.DataModels;
+
+namespace SimaiParserWithAntlr.NoteLayerParser.Notes;
 
 /**
  * A group of notes at a single time point.
@@ -9,6 +11,16 @@ public class NoteGroup
     // The outer layer represents a *fake-each note* group list,
     // and the inner layer represents *each group*.
     public List<List<NoteBase>> NoteList { get; } = new();
+    public TextPositionRange Range { get; set; }
+
+    public NoteGroup() : this(TextPositionRange.EMTPY)
+    {
+    }
+
+    public NoteGroup(TextPositionRange range)
+    {
+        Range = range;
+    }
 
     public void AddEach(List<NoteBase> group)
     {
