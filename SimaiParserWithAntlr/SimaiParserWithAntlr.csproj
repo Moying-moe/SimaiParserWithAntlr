@@ -10,10 +10,15 @@
     <Compile Remove="StructureLayerParser\**" />
     <EmbeddedResource Remove="StructureLayerParser\**" />
     <None Remove="StructureLayerParser\**" />
+    <None Update="I18N\i18n_*.ini">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>i18n/%(Filename)%(Extension)</TargetPath>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Antlr4.Runtime.Standard" Version="4.13.1" />
+    <PackageReference Include="ini-parser" Version="2.5.2" />
   </ItemGroup>
 
 </Project>
