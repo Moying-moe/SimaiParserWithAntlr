@@ -1,3 +1,5 @@
+using SimaiParserWithAntlr.DataModels;
+
 namespace SimaiParserWithAntlr.NoteLayerParser.Notes;
 
 public class TapNote : NoteBase

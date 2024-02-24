@@ -1,4 +1,4 @@
-namespace SimaiParserWithAntlr.NoteLayerParser;
+namespace SimaiParserWithAntlr.DataModels;
 
 public class TextPosition
 {

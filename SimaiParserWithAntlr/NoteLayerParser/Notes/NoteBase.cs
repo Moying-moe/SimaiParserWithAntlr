@@ -1,4 +1,6 @@
-﻿namespace SimaiParserWithAntlr.NoteLayerParser.Notes;
+﻿using SimaiParserWithAntlr.DataModels;
+
+namespace SimaiParserWithAntlr.NoteLayerParser.Notes;
 
 public abstract class NoteBase
 {
