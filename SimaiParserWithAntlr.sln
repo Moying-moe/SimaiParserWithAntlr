@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.7.34024.191
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimaiParserWithAntlr", "SimaiParserWithAntlr.csproj", "{1DA38BD4-A4B2-4418-AF1C-FFFDA19DAA95}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ParserTest", "ParserTest\ParserTest.csproj", "{B76DE931-363C-4162-9567-340E6EB048E9}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimaiParserWithAntlr", "SimaiParserWithAntlr\SimaiParserWithAntlr.csproj", "{F5B0D13E-6227-4C46-A3D0-0491981F431F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,10 +13,14 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{1DA38BD4-A4B2-4418-AF1C-FFFDA19DAA95}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1DA38BD4-A4B2-4418-AF1C-FFFDA19DAA95}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1DA38BD4-A4B2-4418-AF1C-FFFDA19DAA95}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1DA38BD4-A4B2-4418-AF1C-FFFDA19DAA95}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B76DE931-363C-4162-9567-340E6EB048E9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B76DE931-363C-4162-9567-340E6EB048E9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B76DE931-363C-4162-9567-340E6EB048E9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B76DE931-363C-4162-9567-340E6EB048E9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F5B0D13E-6227-4C46-A3D0-0491981F431F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F5B0D13E-6227-4C46-A3D0-0491981F431F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F5B0D13E-6227-4C46-A3D0-0491981F431F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F5B0D13E-6227-4C46-A3D0-0491981F431F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
