@@ -4,7 +4,7 @@ namespace SimaiParserWithAntlr.NoteLayerParser.Notes;
 
 public class TapNote : NoteBase
 {
-    public TapNote(TextPositionRange range, TextPosition stop, int button, bool isBreak, bool isEx) : base(range)
+    public TapNote(TextPositionRange range, int button, bool isBreak, bool isEx) : base(range)
     {
         Button = button;
         IsBreak = isBreak;
@@ -22,6 +22,18 @@ public class TapNote : NoteBase
 
     public override string GetRawString()
     {
-        throw new NotImplementedException();
+        var result = $"{Button}";
+
+        if (IsBreak)
+        {
+            result += Constants.BREAK_MARK;
+        }
+
+        if (IsEx)
+        {
+            result += Constants.EX_MARK;
+        }
+
+        return result;
     }
 }
