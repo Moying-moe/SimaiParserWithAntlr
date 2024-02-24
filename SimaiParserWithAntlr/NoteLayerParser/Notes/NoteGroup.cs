@@ -13,7 +13,7 @@ public class NoteGroup
     public List<List<NoteBase>> NoteList { get; } = new();
     public TextPositionRange Range { get; set; }
 
-    public NoteGroup() : this(TextPositionRange.EMTPY)
+    public NoteGroup() : this(TextPositionRange.EMPTY)
     {
     }
 

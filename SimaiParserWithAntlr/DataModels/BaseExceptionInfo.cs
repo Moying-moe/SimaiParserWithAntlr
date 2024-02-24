@@ -1,5 +1,3 @@
-
-
 using SimaiParserWithAntlr.I18nModule;
 
 namespace SimaiParserWithAntlr.DataModels;

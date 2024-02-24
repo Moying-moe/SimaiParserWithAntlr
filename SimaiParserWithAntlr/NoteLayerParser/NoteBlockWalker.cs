@@ -9,7 +9,7 @@ namespace SimaiParserWithAntlr.NoteLayerParser;
 internal class NoteBlockWalker : NoteBlockParserBaseListener
 {
     public TextPosition Offset { get; private set; }
-    
+
     public List<NoteGroup> NoteGroupList { get; } = new();
     public List<WarningInfo> WarningList { get; } = new();
     public List<ErrorInfo> ErrorList { get; } = new();
@@ -24,7 +24,7 @@ internal class NoteBlockWalker : NoteBlockParserBaseListener
             // each tap group like `15`
             TextPositionRange range1 = new(eachTap.pos1, eachTap.pos1);
             TextPositionRange range2 = new(eachTap.pos2, eachTap.pos2);
-            
+
             if (int.TryParse(eachTap.pos1.Text, out var btn1) && int.TryParse(eachTap.pos2.Text, out var btn2))
             {
                 noteGroup.AddEach(NoteGroup.BuildEach()

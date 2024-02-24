@@ -4,8 +4,8 @@ namespace SimaiParserWithAntlr.DataModels;
 
 public class TextPositionRange
 {
-    public static readonly TextPositionRange EMTPY = new TextPositionRange(TextPosition.EMPTY, TextPosition.EMPTY);
-    
+    public static readonly TextPositionRange EMPTY = new TextPositionRange(TextPosition.EMPTY, TextPosition.EMPTY);
+
     public TextPosition Start { get; set; }
     public TextPosition Stop { get; set; }
 
