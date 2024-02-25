@@ -24,6 +24,9 @@ public class NoteBlockWalker : NoteBlockParserBaseListener
     {
     }
 
+    /**
+     * Process note groups.
+     */
     public override void EnterNote_group(NoteBlockParser.Note_groupContext context)
     {
         TextPositionRange groupRange = new(context, Offset);
@@ -61,6 +64,9 @@ public class NoteBlockWalker : NoteBlockParserBaseListener
         base.EnterNote_group(context);
     }
 
+    /**
+     * Process each groups.
+     */
     private List<NoteBase> ParseEachGroup(NoteBlockParser.Each_groupContext context)
     {
         List<NoteBase> result = new();
@@ -108,6 +114,9 @@ public class NoteBlockWalker : NoteBlockParserBaseListener
         return result;
     }
 
+    /**
+     * Process taps. If an error occurs that prevents parsing, returns null.
+     */
     private TapNote? ParseTap(NoteBlockParser.TapContext context)
     {
         TextPositionRange range = new(context, Offset);
@@ -155,6 +164,9 @@ public class NoteBlockWalker : NoteBlockParserBaseListener
         return new TapNote(range, button, isBreak, isEx);
     }
     
+    /**
+     * Process holds. If an error occurs that prevents parsing, returns null.
+     */
     private HoldNote? ParseHold(NoteBlockParser.HoldContext context)
     {
         TextPositionRange range = new(context, Offset);
@@ -205,10 +217,19 @@ public class NoteBlockWalker : NoteBlockParserBaseListener
         }
 
         var duration = ParseDuration(context.duration());
+        if (duration.Type is not (DurationTypeEnum.Empty or DurationTypeEnum.Fraction or DurationTypeEnum.Time))
+        {
+            ThrowWarning(range, I18nKeyEnum.UnsupportedDurationType, "hold");
+        }
 
         return new HoldNote(range, button, isBreak, isEx, duration);
     }
 
+    /**
+     * Process duration.
+     * When errors occur during processing, partial generation is attempted based on successfully parsed data as much as possible.
+     * When parsing is not possible, returns an empty duration.
+     */
     private NoteDuration ParseDuration(NoteBlockParser.DurationContext? context)
     {
         if (context == null)

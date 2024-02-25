@@ -7,4 +7,5 @@ public enum I18nKeyEnum
     FailToParseNumber,
     DuplicateNoteMarks,
     HoldMarkNotAtEnd,
+    UnsupportedDurationType,
 }
