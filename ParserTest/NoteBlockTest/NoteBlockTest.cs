@@ -1,5 +1,6 @@
 using SimaiParserWithAntlr.I18nModule;
 using SimaiParserWithAntlr.NoteLayerParser;
+using SimaiParserWithAntlr.NoteLayerParser.DataModels;
 using SimaiParserWithAntlr.NoteLayerParser.Enums;
 using SimaiParserWithAntlr.NoteLayerParser.Notes;
 
@@ -83,6 +84,9 @@ public class NoteBlockTest
                     case TouchNote touch:
                         noteArea = touch.Area;
                         break;
+                    case TouchHoldNote touchHold:
+                        noteArea = touchHold.Area;
+                        break;
                     default:
                         return false;
                 }
@@ -97,12 +101,19 @@ public class NoteBlockTest
     {
         return KeyValuePair.Create(durationString, (Func<NoteBase, bool>)(note =>
         {
-            if (note is not HoldNote hold)
+            NoteDuration duration;
+            switch (note)
             {
-                return false;
+                case HoldNote hold:
+                    duration = hold.Duration;
+                    break;
+                case TouchHoldNote touchHold:
+                    duration = touchHold.Duration;
+                    break;
+                default:
+                    return false;
             }
 
-            var duration = hold.Duration;
             return duration.Type == type &&
                    (!fracDenominator.HasValue || duration.FracDenominator == fracDenominator.Value) &&
                    (!fracNumerator.HasValue || duration.FracNumerator == fracNumerator.Value) &&
@@ -255,6 +266,44 @@ public class NoteBlockTest
         new CheckChain().Iter(BUTTON_CHECK_MAP).Iter(markCheckMap).Iter(durCheckMap)
             .RequireWarning(I18nKeyEnum.HoldMarkNotAtEnd).Check();
     }
+    
+    /**
+     * hold test 4.
+     * duplicate marks.
+     */
+    [Fact]
+    public void Hold_DuplicateNoteMarks()
+    {
+        Dictionary<string, Func<NoteBase, bool>> markCheckMap = new()
+        {
+            { "hh", note => note is HoldNote { IsBreak: false, IsEx: false } },
+            { "bbh", note => note is HoldNote { IsBreak: true, IsEx: false } },
+            { "bhb", note => note is HoldNote { IsBreak: true, IsEx: false } },
+            { "hbb", note => note is HoldNote { IsBreak: true, IsEx: false } },
+            { "xxh", note => note is HoldNote { IsBreak: false, IsEx: true } },
+            { "xhx", note => note is HoldNote { IsBreak: false, IsEx: true } },
+            { "hxx", note => note is HoldNote { IsBreak: false, IsEx: true } },
+            { "xhh", note => note is HoldNote { IsBreak: false, IsEx: true } },
+            { "hxh", note => note is HoldNote { IsBreak: false, IsEx: true } },
+            { "hhx", note => note is HoldNote { IsBreak: false, IsEx: true } },
+            { "xxbh", note => note is HoldNote { IsBreak: true, IsEx: true } },
+            { "xxhb", note => note is HoldNote { IsBreak: true, IsEx: true } },
+            { "hxxb", note => note is HoldNote { IsBreak: true, IsEx: true } }
+        };
+        Dictionary<string, Func<NoteBase, bool>> durCheckMap = new()
+        {
+            { DURATION_CHECK_MAP[DurationTypeEnum.Empty].Key, DURATION_CHECK_MAP[DurationTypeEnum.Empty].Value },
+            { DURATION_CHECK_MAP[DurationTypeEnum.Fraction].Key, DURATION_CHECK_MAP[DurationTypeEnum.Fraction].Value },
+            { DURATION_CHECK_MAP[DurationTypeEnum.Time].Key, DURATION_CHECK_MAP[DurationTypeEnum.Time].Value },
+            {
+                DURATION_CHECK_MAP[DurationTypeEnum.BpmFraction].Key,
+                DURATION_CHECK_MAP[DurationTypeEnum.BpmFraction].Value
+            }
+        };
+
+        new CheckChain().Iter(BUTTON_CHECK_MAP).Iter(markCheckMap).Iter(durCheckMap)
+            .RequireWarning(I18nKeyEnum.DuplicateNoteMarks).Check();
+    }
 
     /**
      * touch test 1.
@@ -286,6 +335,121 @@ public class NoteBlockTest
         };
 
         new CheckChain().Iter(AREA_CHECK_MAP).Iter(markCheckMap).RequireWarning(I18nKeyEnum.DuplicateNoteMarks).Check();
+    }
+    
+    /**
+     * touch hold test 1.
+     * correct format
+     */
+    [Fact]
+    public void TouchHold_CorrectFormat()
+    {
+        Dictionary<string, Func<NoteBase, bool>> markCheckMap = new()
+        {
+            { "h", note => note is TouchHoldNote { IsFirework: false } },
+            { "fh", note => note is TouchHoldNote { IsFirework: true } },
+        };
+        Dictionary<string, Func<NoteBase, bool>> durCheckMap = new()
+        {
+            { DURATION_CHECK_MAP[DurationTypeEnum.Empty].Key, DURATION_CHECK_MAP[DurationTypeEnum.Empty].Value },
+            { DURATION_CHECK_MAP[DurationTypeEnum.Fraction].Key, DURATION_CHECK_MAP[DurationTypeEnum.Fraction].Value },
+            { DURATION_CHECK_MAP[DurationTypeEnum.Time].Key, DURATION_CHECK_MAP[DurationTypeEnum.Time].Value },
+            {
+                DURATION_CHECK_MAP[DurationTypeEnum.BpmFraction].Key,
+                DURATION_CHECK_MAP[DurationTypeEnum.BpmFraction].Value
+            }
+        };
+
+        new CheckChain().Iter(AREA_CHECK_MAP).Iter(markCheckMap).Iter(durCheckMap).Check();
+    }
+
+    /**
+     * touch hold test 2.
+     * unsupported duration type. `[120#0.5]`, `[1.5##8:1]` etc.
+     */
+    [Fact]
+    public void TouchHold_UnsupportedDurationType()
+    {
+        Dictionary<string, Func<NoteBase, bool>> markCheckMap = new()
+        {
+            { "h", note => note is TouchHoldNote { IsFirework: false } },
+            { "fh", note => note is TouchHoldNote { IsFirework: true } },
+        };
+        Dictionary<string, Func<NoteBase, bool>> durCheckMap = new()
+        {
+            { DURATION_CHECK_MAP[DurationTypeEnum.BpmTime].Key, DURATION_CHECK_MAP[DurationTypeEnum.BpmTime].Value },
+            {
+                DURATION_CHECK_MAP[DurationTypeEnum.DelayFraction].Key,
+                DURATION_CHECK_MAP[DurationTypeEnum.DelayFraction].Value
+            },
+            {
+                DURATION_CHECK_MAP[DurationTypeEnum.DelayTime].Key, DURATION_CHECK_MAP[DurationTypeEnum.DelayTime].Value
+            },
+            {
+                DURATION_CHECK_MAP[DurationTypeEnum.DelayBpmFraction].Key,
+                DURATION_CHECK_MAP[DurationTypeEnum.DelayBpmFraction].Value
+            }
+        };
+
+        new CheckChain().Iter(AREA_CHECK_MAP).Iter(markCheckMap).Iter(durCheckMap)
+            .RequireWarning(I18nKeyEnum.UnsupportedDurationType).Check();
+    }
+
+    /**
+     * touch hold test 3.
+     * hold mark does not at the end of note.
+     */
+    [Fact]
+    public void TouchHold_HoldMarkNotAtEnd()
+    {
+        Dictionary<string, Func<NoteBase, bool>> markCheckMap = new()
+        {
+            { "hf", note => note is TouchHoldNote { IsFirework: true } },
+        };
+        Dictionary<string, Func<NoteBase, bool>> durCheckMap = new()
+        {
+            { DURATION_CHECK_MAP[DurationTypeEnum.Empty].Key, DURATION_CHECK_MAP[DurationTypeEnum.Empty].Value },
+            { DURATION_CHECK_MAP[DurationTypeEnum.Fraction].Key, DURATION_CHECK_MAP[DurationTypeEnum.Fraction].Value },
+            { DURATION_CHECK_MAP[DurationTypeEnum.Time].Key, DURATION_CHECK_MAP[DurationTypeEnum.Time].Value },
+            {
+                DURATION_CHECK_MAP[DurationTypeEnum.BpmFraction].Key,
+                DURATION_CHECK_MAP[DurationTypeEnum.BpmFraction].Value
+            }
+        };
+
+        new CheckChain().Iter(AREA_CHECK_MAP).Iter(markCheckMap).Iter(durCheckMap)
+            .RequireWarning(I18nKeyEnum.HoldMarkNotAtEnd).Check();
+    }
+    
+    /**
+     * touch hold test 4.
+     * duplicate marks.
+     */
+    [Fact]
+    public void TouchHold_DuplicateNoteMarks()
+    {
+        Dictionary<string, Func<NoteBase, bool>> markCheckMap = new()
+        {
+            { "hh", note => note is TouchHoldNote { IsFirework: false } },
+            { "fhf", note => note is TouchHoldNote { IsFirework: true } },
+            { "ffh", note => note is TouchHoldNote { IsFirework: true } },
+            { "hff", note => note is TouchHoldNote { IsFirework: true } },
+            { "fhh", note => note is TouchHoldNote { IsFirework: true } },
+            { "hhf", note => note is TouchHoldNote { IsFirework: true } },
+            { "hfh", note => note is TouchHoldNote { IsFirework: true } },
+        };
+        Dictionary<string, Func<NoteBase, bool>> durCheckMap = new()
+        {
+            { DURATION_CHECK_MAP[DurationTypeEnum.Empty].Key, DURATION_CHECK_MAP[DurationTypeEnum.Empty].Value },
+            { DURATION_CHECK_MAP[DurationTypeEnum.Fraction].Key, DURATION_CHECK_MAP[DurationTypeEnum.Fraction].Value },
+            { DURATION_CHECK_MAP[DurationTypeEnum.Time].Key, DURATION_CHECK_MAP[DurationTypeEnum.Time].Value },
+            {
+                DURATION_CHECK_MAP[DurationTypeEnum.BpmFraction].Key,
+                DURATION_CHECK_MAP[DurationTypeEnum.BpmFraction].Value
+            }
+        };
+
+        new CheckChain().Iter(AREA_CHECK_MAP).Iter(markCheckMap).Iter(durCheckMap).RequireWarning(I18nKeyEnum.DuplicateNoteMarks).Check();
     }
 
     private class CheckChain

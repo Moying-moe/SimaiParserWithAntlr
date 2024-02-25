@@ -102,7 +102,10 @@ public class NoteBlockWalker : NoteBlockParserBaseListener
                 }
                 else if (noteCtx.touch_hold() is { } touchHoldCtx)
                 {
-                    throw new NotImplementedException();
+                    if (ParseTouchHold(touchHoldCtx) is { } touchHold)
+                    {
+                        result.Add(touchHold);
+                    }
                 }
                 else if (noteCtx.slide() is { } slideCtx)
                 {
@@ -265,6 +268,57 @@ public class NoteBlockWalker : NoteBlockParserBaseListener
         }
 
         return new TouchNote(range, area, isFirework);
+    }
+    
+    /**
+     * Process touch hold. If an error occurs that prevents parsing, returns null.
+     */
+    private TouchHoldNote? ParseTouchHold(NoteBlockParser.Touch_holdContext context)
+    {
+        TextPositionRange range = new(context, Offset);
+
+        bool isFirework = false;
+
+        if (!AreaEnumExt.TryParse(context.pos.Text, out var area))
+        {
+            ThrowError(range, I18nKeyEnum.FailToParseArea, context.pos.Text);
+            return null;
+        }
+
+        var touchHoldMarks = context.touch_hold_mark();
+
+        if (touchHoldMarks.FIREWORK_MARK() is { } fireworkMarks)
+        {
+            if (fireworkMarks.Length != 0)
+            {
+                isFirework = true;
+
+                if (fireworkMarks.Length > 1)
+                {
+                    ThrowWarning(range, I18nKeyEnum.DuplicateNoteMarks, "firework");
+                }
+            }
+        }
+        
+        if (touchHoldMarks.HOLD_MARK() is { Length: > 1 })
+        {
+            ThrowWarning(range, I18nKeyEnum.DuplicateNoteMarks, "hold");
+        }
+
+        // If the hold mark doesn't appear at the last position, we throw a warning.
+        if (touchHoldMarks.Stop.Type != NoteBlockParser.HOLD_MARK)
+        {
+            ThrowWarning(range, I18nKeyEnum.HoldMarkNotAtEnd);
+        }
+
+        var duration = ParseDuration(context.duration());
+        if (duration.Type is not (DurationTypeEnum.Empty or DurationTypeEnum.Fraction or DurationTypeEnum.Time
+            or DurationTypeEnum.BpmFraction))
+        {
+            ThrowWarning(range, I18nKeyEnum.UnsupportedDurationType, "hold");
+        }
+        
+        return new TouchHoldNote(range, area, isFirework, duration);
     }
 
     /**
