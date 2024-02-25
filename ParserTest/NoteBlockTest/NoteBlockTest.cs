@@ -3,11 +3,13 @@ using SimaiParserWithAntlr.NoteLayerParser;
 using SimaiParserWithAntlr.NoteLayerParser.DataModels;
 using SimaiParserWithAntlr.NoteLayerParser.Enums;
 using SimaiParserWithAntlr.NoteLayerParser.Notes;
+using Xunit.Abstractions;
 
 namespace ParserTest.NoteBlockTest;
 
 public class NoteBlockTest
 {
+    private readonly ITestOutputHelper _testOutputHelper;
     private const double EPS = 1e-5;
 
     private static readonly Dictionary<string, Func<NoteBase, bool>> BUTTON_CHECK_MAP = Enum
@@ -95,6 +97,11 @@ public class NoteBlockTest
             })
         );
 
+    public NoteBlockTest(ITestOutputHelper testOutputHelper)
+    {
+        _testOutputHelper = testOutputHelper;
+    }
+
     private static KeyValuePair<string, Func<NoteBase, bool>> CreateDurationCheck(
         string durationString, DurationTypeEnum type, int? fracDenominator = null, int? fracNumerator = null,
         float? delay = null, float? time = null, float? bpm = null)
@@ -135,7 +142,34 @@ public class NoteBlockTest
     [Fact]
     public void DebugTemporaryTest()
     {
-        NoteBlockWalker.GenerateFromText("1h,");
+        var walker = NoteBlockWalker.GenerateFromText(@"1,2b,3bx,4x,
+1h,2bh,3bxh,4hxb,5hhbbxx,6xxhb,
+1h[8:1],2bh[#0.5],3bxh[120#8:1],4hxb[2.5##8:1],5hhbbxx[2.5##1.5],6xxhb[2.5##120#8:1],
+A1,B2f,Cf,C1,C2f,D3ff,E4,
+Ch,Cfh,Chf,C1fh,C2h,Chfhh,
+Ch[8:1],Cfh[#0.5],Chf[120#8:1],C1fh[2.5##8:1],C2h[2.5##1.5],Chfhh[2.5##120#8:1],
+
+1-5[8:1],2-5-1[#0.5],3bx-5[120#8:1],4xbx-5-1[2.5##8:1],5-2-5b[2.5##1.5],6-2-6[2.5##120#8:1]b,
+1b-5b[8:1],1xb-5[8:1]-1[8:1]b,
+1-5[8:1]*-6[8:1],1bx-5b[8:1]*-6[8:1]b,1xb-5[8:1]b*-6b[8:1],1-5-1b[8:1]*-6-1[8:1]b,1-5[8:1]*-6[2.5##120#8:1],
+
+1/2,1/3/5,1`2,1/2`3/4,1`2/3`4,
+");
+        foreach (var noteGroup in walker.NoteGroupList)
+        {
+            _testOutputHelper.WriteLine($"{noteGroup.GetFormattedString()}");
+        }
+        _testOutputHelper.WriteLine("");
+
+        foreach (var warn in walker.WarningList)
+        {
+            _testOutputHelper.WriteLine($"warning {warn.Range}: {warn.Message}");
+        }
+        _testOutputHelper.WriteLine("");
+        foreach (var err in walker.ErrorList)
+        {
+            _testOutputHelper.WriteLine($"error {err.Range}: {err.Message}");
+        }
     }
 
     /**
@@ -450,6 +484,365 @@ public class NoteBlockTest
         };
 
         new CheckChain().Iter(AREA_CHECK_MAP).Iter(markCheckMap).Iter(durCheckMap).RequireWarning(I18nKeyEnum.DuplicateNoteMarks).Check();
+    }
+
+    /**
+     * slide test 1.
+     * simple format like `1-5[8:1]`
+     * TODO: more test case
+     */
+    [Fact]
+    public void Slide_SimpleFormat()
+    {
+        Dictionary<string, Func<NoteBase, bool>> slideCheckMap = new()
+        {
+            {
+                "1-5[8:1]", note =>
+                {
+                    if (note is not SlideNote slide)
+                    {
+                        return false;
+                    }
+
+                    return slide is { IsBreakTap: false, IsExTap: false, IsHeadless: false, SlideBodies.Count: 1 } &&
+                           slide.SlideBodies[0] is
+                           {
+                               IsBreakSlide: false, IsChainDuration: false,
+                               Duration: { Type: DurationTypeEnum.Fraction, FracDenominator: 8, FracNumerator: 1 },
+                               SlideChain.Count: 1
+                           } body && body.SlideChain[0] is
+                               { Type: SlideTypeEnum.Straight, StopButton: ButtonEnum.Button5 };
+
+                }
+            },
+            {
+                "1b-5[8:1]", note =>
+                {
+                    if (note is not SlideNote slide)
+                    {
+                        return false;
+                    }
+
+                    return slide is { IsBreakTap: true, IsExTap: false, IsHeadless: false, SlideBodies.Count: 1 } &&
+                           slide.SlideBodies[0] is
+                           {
+                               IsBreakSlide: false, IsChainDuration: false,
+                               Duration: { Type: DurationTypeEnum.Fraction, FracDenominator: 8, FracNumerator: 1 },
+                               SlideChain.Count: 1
+                           } body && body.SlideChain[0] is
+                               { Type: SlideTypeEnum.Straight, StopButton: ButtonEnum.Button5 };
+
+                }
+            },
+            {
+                "1x-5[8:1]", note =>
+                {
+                    if (note is not SlideNote slide)
+                    {
+                        return false;
+                    }
+
+                    return slide is { IsBreakTap: false, IsExTap: true, IsHeadless: false, SlideBodies.Count: 1 } &&
+                           slide.SlideBodies[0] is
+                           {
+                               IsBreakSlide: false, IsChainDuration: false,
+                               Duration: { Type: DurationTypeEnum.Fraction, FracDenominator: 8, FracNumerator: 1 },
+                               SlideChain.Count: 1
+                           } body && body.SlideChain[0] is
+                               { Type: SlideTypeEnum.Straight, StopButton: ButtonEnum.Button5 };
+
+                }
+            },
+            {
+                "1bx-5[8:1]", note =>
+                {
+                    if (note is not SlideNote slide)
+                    {
+                        return false;
+                    }
+
+                    return slide is { IsBreakTap: true, IsExTap: true, IsHeadless: false, SlideBodies.Count: 1 } &&
+                           slide.SlideBodies[0] is
+                           {
+                               IsBreakSlide: false, IsChainDuration: false,
+                               Duration: { Type: DurationTypeEnum.Fraction, FracDenominator: 8, FracNumerator: 1 },
+                               SlideChain.Count: 1
+                           } body && body.SlideChain[0] is
+                               { Type: SlideTypeEnum.Straight, StopButton: ButtonEnum.Button5 };
+
+                }
+            },
+            {
+                "1b-5b[8:1]", note =>
+                {
+                    if (note is not SlideNote slide)
+                    {
+                        return false;
+                    }
+
+                    return slide is { IsBreakTap: true, IsExTap: false, IsHeadless: false, SlideBodies.Count: 1 } &&
+                           slide.SlideBodies[0] is
+                           {
+                               IsBreakSlide: true, IsChainDuration: false,
+                               Duration: { Type: DurationTypeEnum.Fraction, FracDenominator: 8, FracNumerator: 1 },
+                               SlideChain.Count: 1
+                           } body && body.SlideChain[0] is
+                               { Type: SlideTypeEnum.Straight, StopButton: ButtonEnum.Button5 };
+
+                }
+            },
+            {
+                "1b-5[8:1]b", note =>
+                {
+                    if (note is not SlideNote slide)
+                    {
+                        return false;
+                    }
+
+                    return slide is { IsBreakTap: true, IsExTap: false, IsHeadless: false, SlideBodies.Count: 1 } &&
+                           slide.SlideBodies[0] is
+                           {
+                               IsBreakSlide: true, IsChainDuration: false,
+                               Duration: { Type: DurationTypeEnum.Fraction, FracDenominator: 8, FracNumerator: 1 },
+                               SlideChain.Count: 1
+                           } body && body.SlideChain[0] is
+                               { Type: SlideTypeEnum.Straight, StopButton: ButtonEnum.Button5 };
+
+                }
+            },
+            {
+                "1>5[8:1]", note =>
+                {
+                    if (note is not SlideNote slide)
+                    {
+                        return false;
+                    }
+
+                    return slide is { IsBreakTap: false, IsExTap: false, IsHeadless: false, SlideBodies.Count: 1 } &&
+                           slide.SlideBodies[0] is
+                           {
+                               IsBreakSlide: false, IsChainDuration: false,
+                               Duration: { Type: DurationTypeEnum.Fraction, FracDenominator: 8, FracNumerator: 1 },
+                               SlideChain.Count: 1
+                           } body && body.SlideChain[0] is
+                               { Type: SlideTypeEnum.CircleRight, StopButton: ButtonEnum.Button5 };
+
+                }
+            },
+            {
+                "1b<5[8:1]", note =>
+                {
+                    if (note is not SlideNote slide)
+                    {
+                        return false;
+                    }
+
+                    return slide is { IsBreakTap: true, IsExTap: false, IsHeadless: false, SlideBodies.Count: 1 } &&
+                           slide.SlideBodies[0] is
+                           {
+                               IsBreakSlide: false, IsChainDuration: false,
+                               Duration: { Type: DurationTypeEnum.Fraction, FracDenominator: 8, FracNumerator: 1 },
+                               SlideChain.Count: 1
+                           } body && body.SlideChain[0] is
+                               { Type: SlideTypeEnum.CircleLeft, StopButton: ButtonEnum.Button5 };
+
+                }
+            },
+            {
+                "1x^4[8:1]", note =>
+                {
+                    if (note is not SlideNote slide)
+                    {
+                        return false;
+                    }
+
+                    return slide is { IsBreakTap: false, IsExTap: true, IsHeadless: false, SlideBodies.Count: 1 } &&
+                           slide.SlideBodies[0] is
+                           {
+                               IsBreakSlide: false, IsChainDuration: false,
+                               Duration: { Type: DurationTypeEnum.Fraction, FracDenominator: 8, FracNumerator: 1 },
+                               SlideChain.Count: 1
+                           } body && body.SlideChain[0] is
+                               { Type: SlideTypeEnum.CircleNear, StopButton: ButtonEnum.Button4 };
+
+                }
+            },
+            {
+                "1bxv4[8:1]", note =>
+                {
+                    if (note is not SlideNote slide)
+                    {
+                        return false;
+                    }
+
+                    return slide is { IsBreakTap: true, IsExTap: true, IsHeadless: false, SlideBodies.Count: 1 } &&
+                           slide.SlideBodies[0] is
+                           {
+                               IsBreakSlide: false, IsChainDuration: false,
+                               Duration: { Type: DurationTypeEnum.Fraction, FracDenominator: 8, FracNumerator: 1 },
+                               SlideChain.Count: 1
+                           } body && body.SlideChain[0] is
+                               { Type: SlideTypeEnum.Fold, StopButton: ButtonEnum.Button4 };
+
+                }
+            },
+            {
+                "1bs5b[8:1]", note =>
+                {
+                    if (note is not SlideNote slide)
+                    {
+                        return false;
+                    }
+
+                    return slide is { IsBreakTap: true, IsExTap: false, IsHeadless: false, SlideBodies.Count: 1 } &&
+                           slide.SlideBodies[0] is
+                           {
+                               IsBreakSlide: true, IsChainDuration: false,
+                               Duration: { Type: DurationTypeEnum.Fraction, FracDenominator: 8, FracNumerator: 1 },
+                               SlideChain.Count: 1
+                           } body && body.SlideChain[0] is
+                               { Type: SlideTypeEnum.Thunder, StopButton: ButtonEnum.Button5 };
+
+                }
+            },
+            {
+                "1bz5[8:1]b", note =>
+                {
+                    if (note is not SlideNote slide)
+                    {
+                        return false;
+                    }
+
+                    return slide is { IsBreakTap: true, IsExTap: false, IsHeadless: false, SlideBodies.Count: 1 } &&
+                           slide.SlideBodies[0] is
+                           {
+                               IsBreakSlide: true, IsChainDuration: false,
+                               Duration: { Type: DurationTypeEnum.Fraction, FracDenominator: 8, FracNumerator: 1 },
+                               SlideChain.Count: 1
+                           } body && body.SlideChain[0] is
+                               { Type: SlideTypeEnum.ThunderMirror, StopButton: ButtonEnum.Button5 };
+
+                }
+            },
+            {
+                "1w5[8:1]", note =>
+                {
+                    if (note is not SlideNote slide)
+                    {
+                        return false;
+                    }
+
+                    return slide is { IsBreakTap: false, IsExTap: false, IsHeadless: false, SlideBodies.Count: 1 } &&
+                           slide.SlideBodies[0] is
+                           {
+                               IsBreakSlide: false, IsChainDuration: false,
+                               Duration: { Type: DurationTypeEnum.Fraction, FracDenominator: 8, FracNumerator: 1 },
+                               SlideChain.Count: 1
+                           } body && body.SlideChain[0] is
+                               { Type: SlideTypeEnum.Fan, StopButton: ButtonEnum.Button5 };
+
+                }
+            },
+            {
+                "1bp5[8:1]", note =>
+                {
+                    if (note is not SlideNote slide)
+                    {
+                        return false;
+                    }
+
+                    return slide is { IsBreakTap: true, IsExTap: false, IsHeadless: false, SlideBodies.Count: 1 } &&
+                           slide.SlideBodies[0] is
+                           {
+                               IsBreakSlide: false, IsChainDuration: false,
+                               Duration: { Type: DurationTypeEnum.Fraction, FracDenominator: 8, FracNumerator: 1 },
+                               SlideChain.Count: 1
+                           } body && body.SlideChain[0] is
+                               { Type: SlideTypeEnum.CurveCcw, StopButton: ButtonEnum.Button5 };
+
+                }
+            },
+            {
+                "1xq5[8:1]", note =>
+                {
+                    if (note is not SlideNote slide)
+                    {
+                        return false;
+                    }
+
+                    return slide is { IsBreakTap: false, IsExTap: true, IsHeadless: false, SlideBodies.Count: 1 } &&
+                           slide.SlideBodies[0] is
+                           {
+                               IsBreakSlide: false, IsChainDuration: false,
+                               Duration: { Type: DurationTypeEnum.Fraction, FracDenominator: 8, FracNumerator: 1 },
+                               SlideChain.Count: 1
+                           } body && body.SlideChain[0] is
+                               { Type: SlideTypeEnum.CurveCw, StopButton: ButtonEnum.Button5 };
+
+                }
+            },
+            {
+                "1bxpp5[8:1]", note =>
+                {
+                    if (note is not SlideNote slide)
+                    {
+                        return false;
+                    }
+
+                    return slide is { IsBreakTap: true, IsExTap: true, IsHeadless: false, SlideBodies.Count: 1 } &&
+                           slide.SlideBodies[0] is
+                           {
+                               IsBreakSlide: false, IsChainDuration: false,
+                               Duration: { Type: DurationTypeEnum.Fraction, FracDenominator: 8, FracNumerator: 1 },
+                               SlideChain.Count: 1
+                           } body && body.SlideChain[0] is
+                               { Type: SlideTypeEnum.TweakCurveCcw, StopButton: ButtonEnum.Button5 };
+
+                }
+            },
+            {
+                "1bqq5b[8:1]", note =>
+                {
+                    if (note is not SlideNote slide)
+                    {
+                        return false;
+                    }
+
+                    return slide is { IsBreakTap: true, IsExTap: false, IsHeadless: false, SlideBodies.Count: 1 } &&
+                           slide.SlideBodies[0] is
+                           {
+                               IsBreakSlide: true, IsChainDuration: false,
+                               Duration: { Type: DurationTypeEnum.Fraction, FracDenominator: 8, FracNumerator: 1 },
+                               SlideChain.Count: 1
+                           } body && body.SlideChain[0] is
+                               { Type: SlideTypeEnum.TweakCurveCw, StopButton: ButtonEnum.Button5 };
+
+                }
+            },
+            {
+                "1bV35[8:1]b", note =>
+                {
+                    if (note is not SlideNote slide)
+                    {
+                        return false;
+                    }
+
+                    return slide is { IsBreakTap: true, IsExTap: false, IsHeadless: false, SlideBodies.Count: 1 } &&
+                           slide.SlideBodies[0] is
+                           {
+                               IsBreakSlide: true, IsChainDuration: false,
+                               Duration: { Type: DurationTypeEnum.Fraction, FracDenominator: 8, FracNumerator: 1 },
+                               SlideChain.Count: 1
+                           } body && body.SlideChain[0] is
+                           {
+                               Type: SlideTypeEnum.Turn, TurnButton: ButtonEnum.Button3, StopButton: ButtonEnum.Button5
+                           };
+
+                }
+            },
+        };
+        
+        new CheckChain().Iter(slideCheckMap).Check();
     }
 
     private class CheckChain

@@ -15,7 +15,7 @@ FIREWORK_MARK			: 'f' ;
 // Although `V` requires 2 slide end positions like `1V36`,
 // we treat `V` the same as other slide types and check this rule during semantic analysis.
 // Introducing special processing for 'V' would unnecessarily increase complexity.
-SLIDE_TYPE				: [-<>^vVpqw] | 'pp' | 'qq' ;
+SLIDE_TYPE				: [-<>^vVszpqw] | 'pp' | 'qq' ;
 SLIDE_SAME_HEAD_MARK	: '*' ;
 
 DURATION_START			: '[' -> pushMode(DURATION) ;

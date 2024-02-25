@@ -53,9 +53,10 @@ slide						: startPos=BUTTON tap_mark slide_body (SLIDE_SAME_HEAD_MARK slide_bod
 // Then we handle slide chains like `1-5-2[4:1]` or `1-5[8:1]-2[8:1]`.
 // Additionally, if we specify the duration of a paragraph, then we must specify the duration of all paragraphs,
 // but this is not handled in this stage.
-slide_body					: (slide_tail duration?)* slide_tail bsMark1=BREAK_MARK? duration bsMark2=BREAK_MARK? ;
+slide_body					: slide_part* slide_tail bsMark1=BREAK_MARK? duration bsMark2=BREAK_MARK? ;
+slide_part                  : slide_tail duration? ;
 // We assume that all slides contain 2 endpoints and handle the `V` slide type in semantic analysis.
-slide_tail					: SLIDE_TYPE endPos1=BUTTON? endPos2=BUTTON ;
+slide_tail					: type=SLIDE_TYPE turnBtn=BUTTON? stopBtn=BUTTON ;
 
 
 // duration

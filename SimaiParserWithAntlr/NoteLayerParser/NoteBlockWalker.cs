@@ -109,7 +109,10 @@ public class NoteBlockWalker : NoteBlockParserBaseListener
                 }
                 else if (noteCtx.slide() is { } slideCtx)
                 {
-                    throw new NotImplementedException();
+                    if (ParseSlide(slideCtx) is { } slide)
+                    {
+                        result.Add(slide);
+                    }
                 }
                 else
                 {
@@ -119,6 +122,174 @@ public class NoteBlockWalker : NoteBlockParserBaseListener
         }
 
         return result;
+    }
+
+    private SlideNote? ParseSlide(NoteBlockParser.SlideContext context)
+    {
+        TextPositionRange range = new(context, Offset);
+
+        bool isBreak = false;
+        bool isEx = false;
+
+        if (!ButtonEnumExt.TryParse(context.startPos.Text, out var button))
+        {
+            ThrowError(range, I18nKeyEnum.FailToParseButton, context.startPos.Text);
+            return null;
+        }
+
+        var tapMarks = context.tap_mark();
+        // break
+        if (tapMarks.BREAK_MARK() is { } breakMarks)
+        {
+            if (breakMarks.Length != 0)
+            {
+                isBreak = true;
+
+                // A warning is thrown when breakMarks contains more than one member.
+                if (breakMarks.Length > 1)
+                {
+                    ThrowWarning(range, I18nKeyEnum.DuplicateNoteMarks, "break");
+                }
+            }
+        }
+
+        // ex
+        if (tapMarks.EX_MARK() is { } exMarks)
+        {
+            if (exMarks.Length != 0)
+            {
+                isEx = true;
+
+                if (exMarks.Length > 1)
+                {
+                    ThrowWarning(range, I18nKeyEnum.DuplicateNoteMarks, "ex");
+                }
+            }
+        }
+
+        // TODO: headless slide parse and analyze
+        SlideNote slide = new(range, button, isBreak, isEx, false);
+
+        // same head slide body
+        foreach (var bodyCtx in context.slide_body())
+        {
+            if (ParseSlideBody(bodyCtx) is { } body)
+            {
+                slide.AddBody(body);                
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        return slide;
+    }
+
+    private SlideNote.SlideBody? ParseSlideBody(NoteBlockParser.Slide_bodyContext context)
+    {
+        TextPositionRange range = new(context, Offset);
+        
+        var isBreakSlide = false;
+        var isChainDuration = false;
+
+        if (context.BREAK_MARK() is { } breakMarks)
+        {
+            if (breakMarks.Length != 0)
+            {
+                isBreakSlide = true;
+
+                if (breakMarks.Length > 1)
+                {
+                    ThrowWarning(range, I18nKeyEnum.DuplicateNoteMarks, "break-slide");
+                }
+            }
+        }
+
+        List<SlideNote.SlidePart> slideChain = new();
+        foreach (var part in context.slide_part())
+        {
+            var tail = part.slide_tail();
+            var turnBtn = ButtonEnum.Unknown;
+            NoteDuration? duration = null;
+
+            if (!SlideTypeEnumExt.TryParse(tail.type.Text, out var type))
+            {
+                ThrowError(range, I18nKeyEnum.InvalidSlideType, tail.type.Text);
+                return null;
+            }
+
+            if (tail.turnBtn is { } turnBtnCtx)
+            {
+                if (!ButtonEnumExt.TryParse(turnBtnCtx.Text, out turnBtn))
+                {
+                    ThrowError(range, I18nKeyEnum.FailToParseButton, turnBtnCtx.Text);
+                    return null;
+                }
+            }
+
+            if (!ButtonEnumExt.TryParse(tail.stopBtn.Text, out var stopBtn))
+            {
+                ThrowError(range, I18nKeyEnum.FailToParseButton, tail.stopBtn.Text);
+                return null;
+            }
+
+            if (part.duration() is { } durCtx)
+            {
+                duration = ParseDuration(durCtx);
+                isChainDuration = true;
+            }
+
+            slideChain.Add(turnBtn == ButtonEnum.Unknown
+                ? new SlideNote.SlidePart(type, stopBtn, duration)
+                : new SlideNote.SlidePart(type, turnBtn, stopBtn, duration));
+        }
+        
+        // last slide part
+        var lastTail = context.slide_tail();
+        var lastTurnBtn = ButtonEnum.Unknown;
+        
+        if (!SlideTypeEnumExt.TryParse(lastTail.type.Text, out var lastType))
+        {
+            ThrowError(range, I18nKeyEnum.InvalidSlideType, lastTail.type.Text);
+            return null;
+        }
+            
+        if (lastTail.turnBtn is { } lastTurnBtnCtx)
+        {
+            if (!ButtonEnumExt.TryParse(lastTurnBtnCtx.Text, out lastTurnBtn))
+            {
+                ThrowError(range, I18nKeyEnum.FailToParseButton, lastTurnBtnCtx.Text);
+                return null;
+            }
+        }
+
+        if (!ButtonEnumExt.TryParse(lastTail.stopBtn.Text, out var lastStopBtn))
+        {
+            ThrowError(range, I18nKeyEnum.FailToParseButton, lastTail.stopBtn.Text);
+            return null;
+        }
+        
+        NoteDuration lastDuration = ParseDuration(context.duration());
+
+        if (isChainDuration)
+        {
+            slideChain.Add(lastTurnBtn == ButtonEnum.Unknown
+                ? new SlideNote.SlidePart(lastType, lastStopBtn, lastDuration)
+                : new SlideNote.SlidePart(lastType, lastTurnBtn, lastStopBtn, lastDuration));
+            
+            return new SlideNote.SlideBody(isBreakSlide, slideChain);
+        }
+        else
+        {
+            // Since it's not in chain duration mode, we treat `lastDuration` as the overall duration,
+            // not as part of the duration.
+            slideChain.Add(lastTurnBtn == ButtonEnum.Unknown
+                ? new SlideNote.SlidePart(lastType, lastStopBtn, null)
+                : new SlideNote.SlidePart(lastType, lastTurnBtn, lastStopBtn, null));
+            
+            return new SlideNote.SlideBody(isBreakSlide, slideChain, lastDuration);
+        }
     }
 
     /**

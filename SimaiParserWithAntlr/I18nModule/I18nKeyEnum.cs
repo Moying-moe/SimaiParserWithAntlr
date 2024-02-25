@@ -10,4 +10,5 @@ public enum I18nKeyEnum
     DuplicateNoteMarks,
     HoldMarkNotAtEnd,
     UnsupportedDurationType,
+    InvalidSlideType,
 }
