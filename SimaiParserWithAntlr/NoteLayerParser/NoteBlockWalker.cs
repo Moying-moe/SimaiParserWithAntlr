@@ -3,6 +3,7 @@ using Antlr4.Runtime.Tree;
 using SimaiParserWithAntlr.DataModels;
 using SimaiParserWithAntlr.I18nModule;
 using SimaiParserWithAntlr.NoteLayerParser.DataModels;
+using SimaiParserWithAntlr.NoteLayerParser.Enums;
 using SimaiParserWithAntlr.NoteLayerParser.Notes;
 
 namespace SimaiParserWithAntlr.NoteLayerParser;
@@ -38,7 +39,7 @@ public class NoteBlockWalker : NoteBlockParserBaseListener
             TextPositionRange range1 = new(eachTap.pos1, eachTap.pos1, Offset);
             TextPositionRange range2 = new(eachTap.pos2, eachTap.pos2, Offset);
 
-            if (int.TryParse(eachTap.pos1.Text, out var btn1) && int.TryParse(eachTap.pos2.Text, out var btn2))
+            if (ButtonEnumExt.TryParse(eachTap.pos1.Text, out var btn1) && ButtonEnumExt.TryParse(eachTap.pos2.Text, out var btn2))
             {
                 noteGroup.AddEach(NoteGroup.BuildEach()
                     .Add(new TapNote(range1, btn1))
@@ -47,7 +48,7 @@ public class NoteBlockWalker : NoteBlockParserBaseListener
             }
             else
             {
-                ThrowError(groupRange, I18nKeyEnum.FailToParseNumber, context.GetText(), "int");
+                ThrowError(groupRange, I18nKeyEnum.FailToParseButton, context.GetText());
             }
         }
         else if (context.each_group() is { } eachGroup)
@@ -94,7 +95,10 @@ public class NoteBlockWalker : NoteBlockParserBaseListener
                 }
                 else if (noteCtx.touch() is { } touchCtx)
                 {
-                    throw new NotImplementedException();
+                    if (ParseTouch(touchCtx) is { } touch)
+                    {
+                        result.Add(touch);
+                    }
                 }
                 else if (noteCtx.touch_hold() is { } touchHoldCtx)
                 {
@@ -121,13 +125,12 @@ public class NoteBlockWalker : NoteBlockParserBaseListener
     {
         TextPositionRange range = new(context, Offset);
 
-        int button;
         bool isBreak = false;
         bool isEx = false;
 
-        if (!int.TryParse(context.pos.Text, out button))
+        if (!ButtonEnumExt.TryParse(context.pos.Text, out var button))
         {
-            ThrowError(range, I18nKeyEnum.FailToParseNumber, context.pos.Text, "int");
+            ThrowError(range, I18nKeyEnum.FailToParseButton, context.pos.Text);
             return null;
         }
 
@@ -174,9 +177,9 @@ public class NoteBlockWalker : NoteBlockParserBaseListener
         bool isBreak = false;
         bool isEx = false;
 
-        if (!int.TryParse(context.pos.Text, out var button))
+        if (!ButtonEnumExt.TryParse(context.pos.Text, out var button))
         {
-            ThrowError(range, I18nKeyEnum.FailToParseNumber, context.pos.Text, "int");
+            ThrowError(range, I18nKeyEnum.FailToParseButton, context.pos.Text);
             return null;
         }
 
@@ -223,6 +226,39 @@ public class NoteBlockWalker : NoteBlockParserBaseListener
         }
 
         return new HoldNote(range, button, isBreak, isEx, duration);
+    }
+    
+    /**
+     * Process touch. If an error occurs that prevents parsing, returns null.
+     */
+    private TouchNote? ParseTouch(NoteBlockParser.TouchContext context)
+    {
+        TextPositionRange range = new(context, Offset);
+
+        bool isFirework = false;
+
+        if (!AreaEnumExt.TryParse(context.pos.Text, out var area))
+        {
+            ThrowError(range, I18nKeyEnum.FailToParseArea, context.pos.Text);
+            return null;
+        }
+
+        var touchMarks = context.touch_mark();
+
+        if (touchMarks.FIREWORK_MARK() is { } fireworkMarks)
+        {
+            if (fireworkMarks.Length != 0)
+            {
+                isFirework = true;
+
+                if (fireworkMarks.Length > 1)
+                {
+                    ThrowWarning(range, I18nKeyEnum.DuplicateNoteMarks, "firework");
+                }
+            }
+        }
+
+        return new TouchNote(range, area, isFirework);
     }
 
     /**

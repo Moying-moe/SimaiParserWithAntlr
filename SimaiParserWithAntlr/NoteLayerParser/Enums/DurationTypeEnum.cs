@@ -1,4 +1,4 @@
-namespace SimaiParserWithAntlr.NoteLayerParser.DataModels;
+namespace SimaiParserWithAntlr.NoteLayerParser.Enums;
 
 public enum DurationTypeEnum
 {

@@ -1,11 +1,12 @@
 using SimaiParserWithAntlr.DataModels;
 using SimaiParserWithAntlr.NoteLayerParser.DataModels;
+using SimaiParserWithAntlr.NoteLayerParser.Enums;
 
 namespace SimaiParserWithAntlr.NoteLayerParser.Notes;
 
 public class HoldNote : NoteBase
 {
-    public HoldNote(TextPositionRange range, int button, bool isBreak, bool isEx, NoteDuration duration) : base(range)
+    public HoldNote(TextPositionRange range, ButtonEnum button, bool isBreak, bool isEx, NoteDuration duration) : base(range)
     {
         Button = button;
         IsBreak = isBreak;
@@ -13,14 +14,14 @@ public class HoldNote : NoteBase
         Duration = duration;
     }
 
-    public int Button { get; set; }
+    public ButtonEnum Button { get; set; }
     public bool IsBreak { get; set; }
     public bool IsEx { get; set; }
     public NoteDuration Duration { get; set; }
 
     public override string GetFormattedString()
     {
-        var result = $"{Button}";
+        var result = $"{ButtonEnumExt.ToFormattedString(Button)}";
         
         if (IsBreak)
         {

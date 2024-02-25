@@ -5,6 +5,8 @@ public enum I18nKeyEnum
 {
     NotAState,
     FailToParseNumber,
+    FailToParseButton,
+    FailToParseArea,
     DuplicateNoteMarks,
     HoldMarkNotAtEnd,
     UnsupportedDurationType,

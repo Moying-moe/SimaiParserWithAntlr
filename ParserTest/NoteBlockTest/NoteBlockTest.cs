@@ -1,5 +1,6 @@
 using SimaiParserWithAntlr.NoteLayerParser;
 using SimaiParserWithAntlr.NoteLayerParser.DataModels;
+using SimaiParserWithAntlr.NoteLayerParser.Enums;
 using SimaiParserWithAntlr.NoteLayerParser.Notes;
 using Xunit.Abstractions;
 
