@@ -212,6 +212,11 @@ public class NoteBlockWalker : NoteBlockParserBaseListener
                 }
             }
         }
+
+        if (holdMark.HOLD_MARK() is { Length: > 1 })
+        {
+            ThrowWarning(range, I18nKeyEnum.DuplicateNoteMarks, "hold");
+        }
         
         // If the hold mark doesn't appear at the last position, we throw a warning.
         if (holdMark.Stop.Type != NoteBlockParser.HOLD_MARK)
@@ -220,7 +225,8 @@ public class NoteBlockWalker : NoteBlockParserBaseListener
         }
 
         var duration = ParseDuration(context.duration());
-        if (duration.Type is not (DurationTypeEnum.Empty or DurationTypeEnum.Fraction or DurationTypeEnum.Time))
+        if (duration.Type is not (DurationTypeEnum.Empty or DurationTypeEnum.Fraction or DurationTypeEnum.Time
+            or DurationTypeEnum.BpmFraction))
         {
             ThrowWarning(range, I18nKeyEnum.UnsupportedDurationType, "hold");
         }
