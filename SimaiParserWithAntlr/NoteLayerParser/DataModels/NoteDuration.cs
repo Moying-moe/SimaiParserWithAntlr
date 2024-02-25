@@ -216,7 +216,7 @@ public class NoteDuration
         };
     }
 
-    public string GetRawString()
+    public string GetFormattedString()
     {
         switch (Type)
         {

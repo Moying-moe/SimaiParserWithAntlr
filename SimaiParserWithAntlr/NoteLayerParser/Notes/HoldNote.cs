@@ -18,7 +18,7 @@ public class HoldNote : NoteBase
     public bool IsEx { get; set; }
     public NoteDuration Duration { get; set; }
 
-    public override string GetRawString()
+    public override string GetFormattedString()
     {
         var result = $"{Button}";
         
@@ -33,7 +33,7 @@ public class HoldNote : NoteBase
         }
 
         result += Constants.HOLD_MARK;
-        result += Duration.GetRawString();
+        result += Duration.GetFormattedString();
 
         return result;
     }

@@ -96,7 +96,7 @@ public class NoteBlockTest
                 Assert.True(mark.Value(note));
                 Assert.True(dur.Value(note));
                 
-                _testOutputHelper.WriteLine($"{noteString}\t{note.GetRawString()}\t{note}");
+                _testOutputHelper.WriteLine($"{noteString}\t{note.GetFormattedString()}\t{note}");
             }
         }
     }

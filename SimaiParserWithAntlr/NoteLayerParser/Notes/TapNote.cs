@@ -20,7 +20,7 @@ public class TapNote : NoteBase
     public bool IsBreak { get; set; }
     public bool IsEx { get; set; }
 
-    public override string GetRawString()
+    public override string GetFormattedString()
     {
         var result = $"{Button}";
 

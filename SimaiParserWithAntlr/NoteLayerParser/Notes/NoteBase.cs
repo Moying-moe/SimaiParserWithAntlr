@@ -12,5 +12,5 @@ public abstract class NoteBase
     // Indicates the position of this note in the text.
     public TextPositionRange Range { get; set; }
 
-    public abstract string GetRawString();
+    public abstract string GetFormattedString();
 }
