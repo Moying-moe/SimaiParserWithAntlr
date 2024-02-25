@@ -2,11 +2,12 @@
 using Antlr4.Runtime.Tree;
 using SimaiParserWithAntlr.DataModels;
 using SimaiParserWithAntlr.I18nModule;
+using SimaiParserWithAntlr.NoteLayerParser.DataModels;
 using SimaiParserWithAntlr.NoteLayerParser.Notes;
 
 namespace SimaiParserWithAntlr.NoteLayerParser;
 
-internal class NoteBlockWalker : NoteBlockParserBaseListener
+public class NoteBlockWalker : NoteBlockParserBaseListener
 {
     public TextPosition Offset { get; private set; }
 
@@ -80,7 +81,10 @@ internal class NoteBlockWalker : NoteBlockParserBaseListener
                 }
                 else if (noteCtx.hold() is { } holdCtx)
                 {
-                    throw new NotImplementedException();
+                    if (ParseHold(holdCtx) is { } hold)
+                    {
+                        result.Add(hold);
+                    }
                 }
                 else if (noteCtx.touch() is { } touchCtx)
                 {
@@ -149,6 +153,207 @@ internal class NoteBlockWalker : NoteBlockParserBaseListener
         }
 
         return new TapNote(range, button, isBreak, isEx);
+    }
+    
+    private HoldNote? ParseHold(NoteBlockParser.HoldContext context)
+    {
+        TextPositionRange range = new(context, Offset);
+
+        bool isBreak = false;
+        bool isEx = false;
+
+        if (!int.TryParse(context.pos.Text, out var button))
+        {
+            ThrowError(range, I18nKeyEnum.FailToParseNumber, context.pos.Text, "int");
+            return null;
+        }
+
+        var holdMark = context.hold_mark();
+        // break
+        if (holdMark.BREAK_MARK() is { } breakMarks)
+        {
+            if (breakMarks.Length != 0)
+            {
+                isBreak = true;
+
+                // A warning is thrown when breakMarks contains more than one member.
+                if (breakMarks.Length > 1)
+                {
+                    ThrowWarning(range, I18nKeyEnum.DuplicateNoteMarks, "break");
+                }
+            }
+        }
+
+        // ex
+        if (holdMark.EX_MARK() is { } exMarks)
+        {
+            if (exMarks.Length != 0)
+            {
+                isEx = true;
+
+                if (exMarks.Length > 1)
+                {
+                    ThrowWarning(range, I18nKeyEnum.DuplicateNoteMarks, "ex");
+                }
+            }
+        }
+        
+        // If the hold mark doesn't appear at the last position, we throw a warning.
+        if (holdMark.Stop.Type != NoteBlockParser.HOLD_MARK)
+        {
+            ThrowWarning(range, I18nKeyEnum.HoldMarkNotAtEnd);
+        }
+
+        var duration = ParseDuration(context.duration());
+
+        return new HoldNote(range, button, isBreak, isEx, duration);
+    }
+
+    private NoteDuration ParseDuration(NoteBlockParser.DurationContext? context)
+    {
+        if (context == null)
+        {
+            return NoteDuration.Empty();
+        }
+        
+        TextPositionRange range = new(context, Offset);
+        if (context.frac_duration() is { } fracCtx)
+        {
+            if (!int.TryParse(fracCtx.den.Text, out var denominator))
+            {
+                ThrowError(range, I18nKeyEnum.FailToParseNumber, fracCtx.den.Text, "int");
+                return NoteDuration.Empty();
+            }
+
+            if (!int.TryParse(fracCtx.num.Text, out var numerator))
+            {
+                ThrowError(range, I18nKeyEnum.FailToParseNumber, fracCtx.num.Text, "int");
+                return NoteDuration.Empty();
+            }
+
+            return NoteDuration.FromFraction(denominator, numerator);
+        }
+
+        if (context.bpm_frac_duration() is { } bpmFracCtx)
+        {
+            if (!int.TryParse(bpmFracCtx.den.Text, out var denominator))
+            {
+                ThrowError(range, I18nKeyEnum.FailToParseNumber, bpmFracCtx.den.Text, "int");
+                return NoteDuration.Empty();
+            }
+
+            if (!int.TryParse(bpmFracCtx.num.Text, out var numerator))
+            {
+                ThrowError(range, I18nKeyEnum.FailToParseNumber, bpmFracCtx.num.Text, "int");
+                return NoteDuration.Empty();
+            }
+            if (!float.TryParse(bpmFracCtx.bpm.Text, out var bpm))
+            {
+                ThrowError(range, I18nKeyEnum.FailToParseNumber, bpmFracCtx.bpm.Text, "float");
+                return NoteDuration.FromFraction(denominator, numerator);
+            }
+
+            return NoteDuration.FromBpmFraction(bpm, denominator, numerator);
+        }
+        
+        if (context.time_duration() is { } timeCtx)
+        {
+            if (!float.TryParse(timeCtx.dur.Text, out var time))
+            {
+                ThrowError(range, I18nKeyEnum.FailToParseNumber, timeCtx.dur.Text, "float");
+                return NoteDuration.Empty();
+            }
+
+            return NoteDuration.FromTime(time);
+        }
+        
+        if (context.bpm_time_duration() is { } bpmTimeCtx)
+        {
+            if (!float.TryParse(bpmTimeCtx.dur.Text, out var time))
+            {
+                ThrowError(range, I18nKeyEnum.FailToParseNumber, bpmTimeCtx.dur.Text, "float");
+                return NoteDuration.Empty();
+            }
+
+            if (!float.TryParse(bpmTimeCtx.bpm.Text, out var bpm))
+            {
+                ThrowError(range, I18nKeyEnum.FailToParseNumber, bpmTimeCtx.bpm.Text, "float");
+                return NoteDuration.FromTime(time);
+            }
+
+            return NoteDuration.FromBpmTime(bpm, time);
+        }
+        
+        if (context.delay_frac_duration() is { } delayFracCtx)
+        {
+            if (!int.TryParse(delayFracCtx.den.Text, out var denominator))
+            {
+                ThrowError(range, I18nKeyEnum.FailToParseNumber, delayFracCtx.den.Text, "int");
+                return NoteDuration.Empty();
+            }
+
+            if (!int.TryParse(delayFracCtx.num.Text, out var numerator))
+            {
+                ThrowError(range, I18nKeyEnum.FailToParseNumber, delayFracCtx.num.Text, "int");
+                return NoteDuration.Empty();
+            }
+
+            if (!float.TryParse(delayFracCtx.delay.Text, out var delay))
+            {
+                ThrowError(range, I18nKeyEnum.FailToParseNumber, delayFracCtx.delay.Text, "float");
+                return NoteDuration.FromFraction(denominator, numerator);
+            }
+
+            return NoteDuration.FromDelayFraction(delay, denominator, numerator);
+        }
+        
+        if (context.delay_time_duration() is { } delayTimeCtx)
+        {
+            if (!float.TryParse(delayTimeCtx.dur.Text, out var time))
+            {
+                ThrowError(range, I18nKeyEnum.FailToParseNumber, delayTimeCtx.dur.Text, "int");
+                return NoteDuration.Empty();
+            }
+
+            if (!float.TryParse(delayTimeCtx.delay.Text, out var delay))
+            {
+                ThrowError(range, I18nKeyEnum.FailToParseNumber, delayTimeCtx.delay.Text, "float");
+                return NoteDuration.FromTime(time);
+            }
+
+            return NoteDuration.FromDelayTime(delay, time);
+        }
+        
+        if (context.delay_bpm_frac_duration() is { } delayBpmFracCtx)
+        {
+            if (!int.TryParse(delayBpmFracCtx.den.Text, out var denominator))
+            {
+                ThrowError(range, I18nKeyEnum.FailToParseNumber, delayBpmFracCtx.den.Text, "int");
+                return NoteDuration.Empty();
+            }
+
+            if (!int.TryParse(delayBpmFracCtx.num.Text, out var numerator))
+            {
+                ThrowError(range, I18nKeyEnum.FailToParseNumber, delayBpmFracCtx.num.Text, "int");
+                return NoteDuration.Empty();
+            }
+
+            if (!float.TryParse(delayBpmFracCtx.bpm.Text, out var bpm))
+            {
+                ThrowError(range, I18nKeyEnum.FailToParseNumber, delayBpmFracCtx.bpm.Text, "float");
+                return NoteDuration.FromFraction(denominator, numerator);
+            }
+
+            if (!float.TryParse(delayBpmFracCtx.delay.Text, out var delay))
+            {
+                ThrowError(range, I18nKeyEnum.FailToParseNumber, delayBpmFracCtx.delay.Text, "float");
+                return NoteDuration.FromBpmFraction(bpm, denominator, numerator);
+            }
+
+            return NoteDuration.FromDelayBpmFraction(delay, bpm, denominator, numerator);
+        }
+
+        return NoteDuration.Empty();
     }
 
     private void ThrowWarning(TextPositionRange range, I18nKeyEnum key, params object[] args)

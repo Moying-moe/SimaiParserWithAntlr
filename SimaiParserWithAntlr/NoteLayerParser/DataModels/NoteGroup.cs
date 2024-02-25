@@ -1,6 +1,7 @@
 ﻿using SimaiParserWithAntlr.DataModels;
+using SimaiParserWithAntlr.NoteLayerParser.Notes;
 
-namespace SimaiParserWithAntlr.NoteLayerParser.Notes;
+namespace SimaiParserWithAntlr.NoteLayerParser.DataModels;
 
 /**
  * A group of notes at a single time point.

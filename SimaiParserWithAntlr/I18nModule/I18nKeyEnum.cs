@@ -6,4 +6,5 @@ public enum I18nKeyEnum
     NotAState,
     FailToParseNumber,
     DuplicateNoteMarks,
+    HoldMarkNotAtEnd,
 }
