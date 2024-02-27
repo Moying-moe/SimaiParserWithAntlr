@@ -10,7 +10,7 @@
         <Compile Remove="StructureLayerParser\**"/>
         <EmbeddedResource Remove="StructureLayerParser\**"/>
         <None Remove="StructureLayerParser\**"/>
-        <None Update="I18N\i18n_*.ini">
+        <None Update="I18nModule\i18n_*.ini">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
             <TargetPath>i18n/%(Filename)%(Extension)</TargetPath>
         </None>
