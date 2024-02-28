@@ -881,7 +881,7 @@ Ch[8:1],Cfh[#0.5],Chf[120#8:1],C1fh[2.5##8:1],C2h[2.5##1.5],Chfhh[2.5##120#8:1],
                 // last layer. Check it out, now! *scratch*
                 noteString += Constants.NOTE_GROUP_SEPARATOR;
 
-                var result = NoteBlockWalker.GenerateFromText(noteString);
+                var result = NoteParser.GenerateFromText(noteString);
 
                 // check warnings and errors
                 if (_warnKeys.Count == 0)
