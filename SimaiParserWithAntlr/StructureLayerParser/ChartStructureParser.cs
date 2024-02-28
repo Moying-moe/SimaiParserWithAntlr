@@ -73,6 +73,94 @@ public class ChartStructureParser : StructureParserBaseListener
 
         base.EnterElement(context);
     }
+    
+    /**
+     * Analyze and verify the structure of the chart elements.
+     */
+    private void Analyze()
+    {
+        double? curBpm = null;
+        int? curResolution = null;
+        double curHiSpeed = 1;
+
+        // We expect to encounter at least one non-empty note block after a bpm element, and then encounter the next new bpm element.
+        bool hasBpmMeetNote = true;
+        // Or resolution and so on.
+        bool hasResolutionMeetNote = true;
+        bool hasHiSpeedMeetNote = true;
+
+        foreach (var element in ElementList)
+        {
+            if (element is BpmElement bpm)
+            {
+                curBpm = bpm.Bpm;
+
+                if (!hasBpmMeetNote)
+                {
+                    ThrowWarning(bpm.Range, I18nKeyEnum.EmptyBpmSegment);
+                }
+
+                hasBpmMeetNote = false;
+            }
+            else if (element is ResolutionElement resolution)
+            {
+                curResolution = resolution.Resolution;
+
+                if (curBpm == null)
+                {
+                    ThrowWarning(resolution.Range, I18nKeyEnum.BpmRequired);
+                }
+
+                if (!hasResolutionMeetNote)
+                {
+                    ThrowWarning(resolution.Range, I18nKeyEnum.EmptyResolutionSegment);
+                }
+
+                hasResolutionMeetNote = true;
+            }
+            else if (element is HiSpeedElement hiSpeed)
+            {
+                curHiSpeed = hiSpeed.HiSpeed;
+                
+                if (curBpm == null)
+                {
+                    ThrowWarning(hiSpeed.Range, I18nKeyEnum.BpmRequired);
+                }
+
+                if (curResolution == null)
+                {
+                    ThrowWarning(hiSpeed.Range, I18nKeyEnum.ResolutionRequired);
+                }
+
+                if (!hasHiSpeedMeetNote)
+                {
+                    ThrowWarning(hiSpeed.Range, I18nKeyEnum.EmptyHiSpeedSegment);
+                }
+
+                hasHiSpeedMeetNote = false;
+            }
+            else if (element is NoteBlockElement noteBlock)
+            {
+                if (curBpm == null)
+                {
+                    ThrowError(noteBlock.Range, I18nKeyEnum.BpmRequired);
+                }
+
+                if (curResolution == null)
+                {
+                    ThrowError(noteBlock.Range, I18nKeyEnum.ResolutionRequired);
+                }
+
+                noteBlock.Bpm = curBpm;
+                noteBlock.Resolution = curResolution;
+                noteBlock.HiSpeed = curHiSpeed;
+
+                hasBpmMeetNote = true;
+                hasResolutionMeetNote = true;
+                hasHiSpeedMeetNote = true;
+            }
+        }
+    }
 
     private BpmElement? ParseBpm(StructureParser.BpmContext context)
     {
@@ -135,6 +223,13 @@ public class ChartStructureParser : StructureParserBaseListener
     {
         TextPositionRange range = new(context, Offset);
 
+        var rawText = context.GetText();
+        if (rawText.Trim().Length == 0)
+        {
+            // a empty note block
+            return null;
+        }
+
         return new NoteBlockElement(context.GetText(), range);
     }
     
@@ -190,6 +285,8 @@ public class ChartStructureParser : StructureParserBaseListener
             ? new ChartStructureParser(text) 
             : new ChartStructureParser(text, offset);
         ParseTreeWalker.Default.Walk(walker, tree);
+
+        walker.Analyze();
 
         return walker;
     }

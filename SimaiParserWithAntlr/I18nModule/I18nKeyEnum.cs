@@ -17,4 +17,9 @@ public enum I18nKeyEnum
     InvalidHiSpeed,
     NoSpaceAfterCommentSymbol,
     EmptySymbol,
+    EmptyBpmSegment,
+    EmptyResolutionSegment,
+    EmptyHiSpeedSegment,
+    BpmRequired,
+    ResolutionRequired,
 }
