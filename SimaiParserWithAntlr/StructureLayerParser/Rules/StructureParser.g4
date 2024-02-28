@@ -2,7 +2,8 @@ parser grammar StructureParser;
 
 options {tokenVocab=StructureLexer;}
 
-chart                       : (bpm | resolution | h_speed | maml_open | maml_close | note_block | comment)* EOF ;
+chart                       : element* EOF ;
+element                     : bpm | resolution | h_speed | maml_open | maml_close | note_block | comment ;
 
 bpm                         : BPM_START value=BPM_NUMBER BPM_END ;
 resolution                  : RESOLUTION_START value=RESOLUTION_NUMBER RESOLUTION_END ;

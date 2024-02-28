@@ -11,4 +11,6 @@ public enum I18nKeyEnum
     HoldMarkNotAtEnd,
     UnsupportedDurationType,
     InvalidSlideType,
+    UnknownStructureBlock,
+    InvalidBpm,
 }
