@@ -135,10 +135,10 @@ public class TextPositionRange
                 }
                 else
                 {
-                    positionedLines[0] = string.Join("", Enumerable.Repeat(" ", Start.Column));
+                    positionedLines[0] += string.Join("", Enumerable.Repeat(" ", Start.Column));
                 }
 
-                positionedLines[0] += string.Join("", Enumerable.Repeat("^", Stop.Column - Start.Column + 1));
+                positionedLines[0] += string.Join("", Enumerable.Repeat("^", Stop.Column - Start.Column));
             }
             else
             {

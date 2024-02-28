@@ -14,7 +14,7 @@ public class WarningInfo : BaseExceptionInfo
     
     public new string GetFormattedInfo(string text)
     {
-        string result = $"Warning at Line {Range.Start.Line} Column {Range.Stop.Column}:";
+        string result = $"Warning at Line {Range.Start.Line} Column {Range.Stop.Column}:\n";
         result += Range.GetPositionedString(text, 5, 5, true, true) + "\n";
         result += $"{Key}: {Message}";
         return result;
