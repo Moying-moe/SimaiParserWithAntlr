@@ -7,13 +7,12 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Compile Remove="StructureLayerParser\**"/>
-        <EmbeddedResource Remove="StructureLayerParser\**"/>
-        <None Remove="StructureLayerParser\**"/>
         <None Update="I18nModule\i18n_*.ini">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
             <TargetPath>i18n/%(Filename)%(Extension)</TargetPath>
         </None>
+        <None Include="StructureLayerParser\generate.sh" />
+        <None Include="StructureLayerParser\Rules\StructureLexer.g4" />
     </ItemGroup>
 
     <ItemGroup>
