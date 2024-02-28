@@ -13,4 +13,6 @@ public enum I18nKeyEnum
     InvalidSlideType,
     UnknownStructureBlock,
     InvalidBpm,
+    InvalidResolution,
+    InvalidHiSpeed,
 }

@@ -39,11 +39,17 @@ public class ChartStructureParser : StructureParserBaseListener
         }
         else if (context.resolution() is { } resolutionCtx)
         {
-            throw new NotImplementedException();
+            if (ParseResolution(resolutionCtx) is { } resolution)
+            {
+                ElementList.Add(resolution);
+            }
         }
         else if (context.h_speed() is {} hiSpeedCtx)
         {
-            throw new NotImplementedException();
+            if (ParseHiSpeed(hiSpeedCtx) is { } hiSpeed)
+            {
+                ElementList.Add(hiSpeed);
+            }
         }
         else if (context.note_block() is { } noteBlockCtx)
         {
@@ -79,6 +85,44 @@ public class ChartStructureParser : StructureParserBaseListener
         }
 
         return new BpmElement(context.GetText(), range, bpm);
+    }
+    
+    private ResolutionElement? ParseResolution(StructureParser.ResolutionContext context)
+    {
+        TextPositionRange range = new(context, Offset);
+
+        if (!int.TryParse(context.value.Text, out var resolution))
+        {
+            ThrowError(range, I18nKeyEnum.FailToParseNumber, context.value.Text, "int");
+            return null;
+        }
+
+        if (resolution <= 0)
+        {
+            ThrowError(range, I18nKeyEnum.InvalidResolution, context.value.Text);
+            return null;
+        }
+
+        return new ResolutionElement(context.GetText(), range, resolution);
+    }
+    
+    private HiSpeedElement? ParseHiSpeed(StructureParser.H_speedContext context)
+    {
+        TextPositionRange range = new(context, Offset);
+
+        if (!double.TryParse(context.rate.Text, out var hiSpeed))
+        {
+            ThrowError(range, I18nKeyEnum.FailToParseNumber, context.rate.Text, "double");
+            return null;
+        }
+
+        if (hiSpeed <= 1e-5)
+        {
+            ThrowError(range, I18nKeyEnum.InvalidHiSpeed, context.rate.Text);
+            return null;
+        }
+
+        return new HiSpeedElement(context.GetText(), range, hiSpeed);
     }
 
     private void ThrowWarning(TextPositionRange range, I18nKeyEnum key, params object[] args)
