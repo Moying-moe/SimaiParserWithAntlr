@@ -44,7 +44,7 @@ public class ChartStructureParser : StructureParserBaseListener
                 ElementList.Add(resolution);
             }
         }
-        else if (context.h_speed() is {} hiSpeedCtx)
+        else if (context.h_speed() is { } hiSpeedCtx)
         {
             if (ParseHiSpeed(hiSpeedCtx) is { } hiSpeed)
             {
@@ -53,18 +53,24 @@ public class ChartStructureParser : StructureParserBaseListener
         }
         else if (context.note_block() is { } noteBlockCtx)
         {
-            throw new NotImplementedException();
+            if (ParseNoteBlock(noteBlockCtx) is { } noteBlock)
+            {
+                ElementList.Add(noteBlock);
+            }
         }
         else if (context.comment() is { } commentCtx)
         {
-            throw new NotImplementedException();
+            if (ParseComment(commentCtx) is { } comment)
+            {
+                ElementList.Add(comment);
+            }
         }
         else
         {
             // unknown structure block
             ThrowError(elRange, I18nKeyEnum.UnknownStructureBlock, context.GetText());
         }
- 
+
         base.EnterElement(context);
     }
 
@@ -123,6 +129,37 @@ public class ChartStructureParser : StructureParserBaseListener
         }
 
         return new HiSpeedElement(context.GetText(), range, hiSpeed);
+    }
+    
+    private NoteBlockElement? ParseNoteBlock(StructureParser.Note_blockContext context)
+    {
+        TextPositionRange range = new(context, Offset);
+
+        return new NoteBlockElement(context.GetText(), range);
+    }
+    
+    private CommentElement? ParseComment(StructureParser.CommentContext context)
+    {
+        TextPositionRange range = new(context, Offset);
+
+        string rawText = context.GetText();
+        string content = rawText;
+        if (content.StartsWith(Constants.COMMENT_SYMBOL))
+        {
+            content = content[Constants.COMMENT_SYMBOL.Length..];
+        }
+
+        if (!content.StartsWith(" "))
+        {
+            ThrowWarning(range, I18nKeyEnum.NoSpaceAfterCommentSymbol);
+        }
+
+        if (content.Length == 0)
+        {
+            ThrowWarning(range, I18nKeyEnum.EmptySymbol);
+        }
+
+        return new CommentElement(rawText, range, content);
     }
 
     private void ThrowWarning(TextPositionRange range, I18nKeyEnum key, params object[] args)
