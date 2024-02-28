@@ -125,8 +125,8 @@ public class SlideNote : NoteBase
     public bool IsHeadless { get; set; }
     public List<SlideBody> SlideBodies { get; set; }
 
-    public SlideNote(TextPositionRange range, ButtonEnum button, bool isBreakTap, bool isExTap,
-        bool isHeadless, List<SlideBody> slideBodies) : base(range)
+    public SlideNote(string rawText, TextPositionRange range, ButtonEnum button, bool isBreakTap, bool isExTap,
+        bool isHeadless, List<SlideBody> slideBodies) : base(rawText, range)
     {
         Button = button;
         IsBreakTap = isBreakTap;
@@ -135,8 +135,8 @@ public class SlideNote : NoteBase
         SlideBodies = slideBodies;
     }
 
-    public SlideNote(TextPositionRange range, ButtonEnum button, bool isBreakTap, bool isExTap,
-        bool isHeadless) : this(range, button, isBreakTap, isExTap, isHeadless, new List<SlideBody>())
+    public SlideNote(string rawText, TextPositionRange range, ButtonEnum button, bool isBreakTap, bool isExTap,
+        bool isHeadless) : this(rawText, range, button, isBreakTap, isExTap, isHeadless, new List<SlideBody>())
     {
     }
 

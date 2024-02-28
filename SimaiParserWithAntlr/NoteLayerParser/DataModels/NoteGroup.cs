@@ -12,14 +12,16 @@ public class NoteGroup
     // The outer layer represents a *fake-each note* group list,
     // and the inner layer represents *each group*.
     public List<List<NoteBase>> NoteList { get; } = new();
+    public string RawText { get; set; }
     public TextPositionRange Range { get; set; }
 
-    public NoteGroup() : this(TextPositionRange.EMPTY)
+    public NoteGroup(string rawText) : this(rawText, TextPositionRange.EMPTY)
     {
     }
 
-    public NoteGroup(TextPositionRange range)
+    public NoteGroup(string rawText, TextPositionRange range)
     {
+        RawText = rawText;
         Range = range;
     }
 
