@@ -116,7 +116,7 @@ public class ChartStructureParser : StructureParserBaseListener
                     ThrowWarning(resolution.Range, I18nKeyEnum.EmptyResolutionSegment);
                 }
 
-                hasResolutionMeetNote = true;
+                hasResolutionMeetNote = false;
             }
             else if (element is HiSpeedElement hiSpeed)
             {
@@ -278,7 +278,7 @@ public class ChartStructureParser : StructureParserBaseListener
             BuildParseTree = true
         };
 
-        IParseTree tree = parser.note_block();
+        IParseTree tree = parser.chart();
 
         // Visiting using the listener
         var walker = (offset == null) 
