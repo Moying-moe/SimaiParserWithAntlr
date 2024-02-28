@@ -6,7 +6,7 @@ namespace SimaiParserWithAntlr.NoteLayerParser.Notes;
 
 public class HoldNote : NoteBase
 {
-    public HoldNote(TextPositionRange range, ButtonEnum button, bool isBreak, bool isEx, NoteDuration duration) : base(range)
+    public HoldNote(string rawText, TextPositionRange range, ButtonEnum button, bool isBreak, bool isEx, NoteDuration duration) : base(rawText, range)
     {
         Button = button;
         IsBreak = isBreak;

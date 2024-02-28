@@ -4,11 +4,13 @@ namespace SimaiParserWithAntlr.NoteLayerParser.Notes;
 
 public abstract class NoteBase
 {
-    protected NoteBase(TextPositionRange range)
+    protected NoteBase(string rawText, TextPositionRange range)
     {
+        RawText = rawText;
         Range = range;
     }
 
+    public string RawText { get; set; }
     // Indicates the position of this note in the text.
     public TextPositionRange Range { get; set; }
 

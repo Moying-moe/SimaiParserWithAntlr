@@ -5,14 +5,14 @@ namespace SimaiParserWithAntlr.NoteLayerParser.Notes;
 
 public class TapNote : NoteBase
 {
-    public TapNote(TextPositionRange range, ButtonEnum button, bool isBreak, bool isEx) : base(range)
+    public TapNote(string rawText, TextPositionRange range, ButtonEnum button, bool isBreak, bool isEx) : base(rawText, range)
     {
         Button = button;
         IsBreak = isBreak;
         IsEx = isEx;
     }
 
-    public TapNote(TextPositionRange range, ButtonEnum button) : base(range)
+    public TapNote(string rawText, TextPositionRange range, ButtonEnum button) : base(rawText, range)
     {
         Button = button;
     }

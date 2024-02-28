@@ -6,7 +6,7 @@ namespace SimaiParserWithAntlr.NoteLayerParser.Notes;
 
 public class TouchHoldNote : NoteBase
 {
-    public TouchHoldNote(TextPositionRange range, AreaEnum area, bool isFirework, NoteDuration duration) : base(range)
+    public TouchHoldNote(string rawText, TextPositionRange range, AreaEnum area, bool isFirework, NoteDuration duration) : base(rawText, range)
     {
         Area = area;
         IsFirework = isFirework;
