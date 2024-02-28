@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Text;
 using System.Text.RegularExpressions;
 using IniParser;
 
@@ -32,7 +33,7 @@ public class I18n
                 culture = new CultureInfo(cultureName);
             }
 
-            var data = parser.ReadFile(fn);
+            var data = parser.ReadFile(fn, Encoding.UTF8);
 
             _i18nMap.Add(culture, data.Global.ToDictionary(e => e.KeyName, e => e.Value));
         }

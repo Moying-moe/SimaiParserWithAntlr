@@ -1,30 +1,28 @@
 using SimaiParserWithAntlr.DataModels;
+using SimaiParserWithAntlr.NoteLayerParser.DataModels;
 using SimaiParserWithAntlr.NoteLayerParser.Enums;
 
 namespace SimaiParserWithAntlr.NoteLayerParser.Notes;
 
-public class TapNote : NoteBase
+public class HoldNote : NoteBase
 {
-    public TapNote(TextPositionRange range, ButtonEnum button, bool isBreak, bool isEx) : base(range)
+    public HoldNote(TextPositionRange range, ButtonEnum button, bool isBreak, bool isEx, NoteDuration duration) : base(range)
     {
         Button = button;
         IsBreak = isBreak;
         IsEx = isEx;
-    }
-
-    public TapNote(TextPositionRange range, ButtonEnum button) : base(range)
-    {
-        Button = button;
+        Duration = duration;
     }
 
     public ButtonEnum Button { get; set; }
     public bool IsBreak { get; set; }
     public bool IsEx { get; set; }
+    public NoteDuration Duration { get; set; }
 
     public override string GetFormattedString()
     {
         var result = $"{ButtonEnumExt.ToFormattedString(Button)}";
-
+        
         if (IsBreak)
         {
             result += Constants.BREAK_MARK;
@@ -34,6 +32,9 @@ public class TapNote : NoteBase
         {
             result += Constants.EX_MARK;
         }
+
+        result += Constants.HOLD_MARK;
+        result += Duration.GetFormattedString();
 
         return result;
     }

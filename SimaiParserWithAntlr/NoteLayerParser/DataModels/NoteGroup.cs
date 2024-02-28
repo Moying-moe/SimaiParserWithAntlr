@@ -1,6 +1,7 @@
 ﻿using SimaiParserWithAntlr.DataModels;
+using SimaiParserWithAntlr.NoteLayerParser.Notes;
 
-namespace SimaiParserWithAntlr.NoteLayerParser.Notes;
+namespace SimaiParserWithAntlr.NoteLayerParser.DataModels;
 
 /**
  * A group of notes at a single time point.
@@ -27,9 +28,9 @@ public class NoteGroup
         NoteList.Add(group);
     }
 
-    public string GetRawString()
+    public string GetFormattedString()
     {
-        var eachStringList = NoteList.Select(eachGroup => eachGroup.Select(note => note.GetRawString()).ToList())
+        var eachStringList = NoteList.Select(eachGroup => eachGroup.Select(note => note.GetFormattedString()).ToList())
             .Select(noteStringList => string.Join(Constants.EACH_SEPARATOR, noteStringList)).ToList();
 
         return string.Join(Constants.FAKE_EACH_SEPARATOR, eachStringList);

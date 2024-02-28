@@ -1,3 +1,4 @@
+using Antlr4.Runtime.Tree.Pattern;
 using SimaiParserWithAntlr.I18nModule;
 
 namespace SimaiParserWithAntlr.DataModels;
@@ -20,5 +21,13 @@ public class BaseExceptionInfo
         Key = key;
         Message = string.Format(I18n.Instance.Get(key), args);
         Range = range;
+    }
+
+    public string GetFormattedInfo(string text)
+    {
+        string result = $"Exception at Line {Range.Start.Line} Column {Range.Stop.Column}:";
+        result += Range.GetPositionedString(text, 5, 5, true, true) + "\n";
+        result += $"{Key}: {Message}";
+        return result;
     }
 }
