@@ -5,18 +5,21 @@ namespace SimaiParserWithAntlr.NoteLayerParser.Notes;
 
 public class ParserTouchNote : ParserNoteBase
 {
-    public ParserTouchNote(string rawText, TextPositionRange range, AreaEnum area, bool isFirework) : base(rawText, range)
+    public ParserTouchNote(string rawText, TextPositionRange range, AreaCodeEnum areaCode, int areaNumber,
+        bool isFirework) : base(rawText, range)
     {
-        Area = area;
+        AreaCode = areaCode;
+        AreaNumber = areaNumber;
         IsFirework = isFirework;
     }
 
-    public AreaEnum Area { get; set; }
+    public AreaCodeEnum AreaCode { get; set; }
+    public int AreaNumber { get; set; }
     public bool IsFirework { get; set; }
 
     public override string GetFormattedString()
     {
-        var result = $"{AreaEnumExt.ToFormattedString(Area)}";
+        var result = $"{AreaCode}{AreaNumber}";
 
         if (IsFirework)
         {

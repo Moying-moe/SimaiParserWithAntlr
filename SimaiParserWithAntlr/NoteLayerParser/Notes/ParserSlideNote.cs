@@ -2,6 +2,7 @@ using SimaiParserWithAntlr.DataModels;
 using SimaiParserWithAntlr.Enums;
 using SimaiParserWithAntlr.NoteLayerParser.DataModels;
 using SimaiParserWithAntlr.NoteLayerParser.Exceptions;
+using SimaiParserWithAntlr.Utils;
 
 namespace SimaiParserWithAntlr.NoteLayerParser.Notes;
 
@@ -11,41 +12,19 @@ public class ParserSlideNote : ParserNoteBase
     {
         public SlideTypeEnum Type { get; set; }
 
-        private ButtonEnum _turnButton = ButtonEnum.Unknown;
-        public ButtonEnum TurnButton
-        {
-            get
-            {
-                if (Type != SlideTypeEnum.Turn)
-                {
-                    throw new UnsupportedPropInCurrentSlideType();
-                }
-
-                return _turnButton;
-            }
-            set
-            {
-                if (Type != SlideTypeEnum.Turn)
-                {
-                    throw new UnsupportedPropInCurrentSlideType();
-                }
-
-                _turnButton = value;
-            }
-        }
-
-        public ButtonEnum StopButton { get; set; }
+        private int TurnButton { get; set; } = ButtonHelper.UNKNOWN_BUTTON;
+        public int StopButton { get; set; }
         public NoteDuration? Duration { get; set; }
 
-        public SlidePart(SlideTypeEnum type, ButtonEnum turnButton, ButtonEnum stopButton, NoteDuration? duration)
+        public SlidePart(SlideTypeEnum type, int turnButton, int stopButton, NoteDuration? duration)
         {
-            _turnButton = turnButton;
+            TurnButton = turnButton;
             Type = type;
             StopButton = stopButton;
             Duration = duration;
         }
 
-        public SlidePart(SlideTypeEnum type, ButtonEnum stopButton, NoteDuration? duration)
+        public SlidePart(SlideTypeEnum type, int stopButton, NoteDuration? duration)
         {
             Type = type;
             StopButton = stopButton;
@@ -60,9 +39,9 @@ public class ParserSlideNote : ParserNoteBase
             
             if (Type == SlideTypeEnum.Turn)
             {
-                result += ButtonEnumExt.ToFormattedString(_turnButton);
+                result += TurnButton.ToString();
             }
-            result += ButtonEnumExt.ToFormattedString(StopButton);
+            result += StopButton.ToString();
             
             if (Duration != null)
             {
@@ -119,13 +98,13 @@ public class ParserSlideNote : ParserNoteBase
         }
     }
 
-    public ButtonEnum Button { get; set; }
+    public int Button { get; set; }
     public bool IsBreakTap { get; set; }
     public bool IsExTap { get; set; }
     public bool IsHeadless { get; set; }
     public List<SlideBody> SlideBodies { get; set; }
 
-    public ParserSlideNote(string rawText, TextPositionRange range, ButtonEnum button, bool isBreakTap, bool isExTap,
+    public ParserSlideNote(string rawText, TextPositionRange range, int button, bool isBreakTap, bool isExTap,
         bool isHeadless, List<SlideBody> slideBodies) : base(rawText, range)
     {
         Button = button;
@@ -135,7 +114,7 @@ public class ParserSlideNote : ParserNoteBase
         SlideBodies = slideBodies;
     }
 
-    public ParserSlideNote(string rawText, TextPositionRange range, ButtonEnum button, bool isBreakTap, bool isExTap,
+    public ParserSlideNote(string rawText, TextPositionRange range, int button, bool isBreakTap, bool isExTap,
         bool isHeadless) : this(rawText, range, button, isBreakTap, isExTap, isHeadless, new List<SlideBody>())
     {
     }
@@ -147,7 +126,7 @@ public class ParserSlideNote : ParserNoteBase
 
     public override string GetFormattedString()
     {
-        var result = $"{ButtonEnumExt.ToFormattedString(Button)}";
+        var result = $"{Button}";
         
         if (IsBreakTap)
         {

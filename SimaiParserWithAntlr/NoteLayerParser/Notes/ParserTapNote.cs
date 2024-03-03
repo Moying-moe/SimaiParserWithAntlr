@@ -5,25 +5,25 @@ namespace SimaiParserWithAntlr.NoteLayerParser.Notes;
 
 public class ParserTapNote : ParserNoteBase
 {
-    public ParserTapNote(string rawText, TextPositionRange range, ButtonEnum button, bool isBreak, bool isEx) : base(rawText, range)
+    public ParserTapNote(string rawText, TextPositionRange range, int button, bool isBreak, bool isEx) : base(rawText, range)
     {
         Button = button;
         IsBreak = isBreak;
         IsEx = isEx;
     }
 
-    public ParserTapNote(string rawText, TextPositionRange range, ButtonEnum button) : base(rawText, range)
+    public ParserTapNote(string rawText, TextPositionRange range, int button) : base(rawText, range)
     {
         Button = button;
     }
 
-    public ButtonEnum Button { get; set; }
+    public int Button { get; set; }
     public bool IsBreak { get; set; }
     public bool IsEx { get; set; }
 
     public override string GetFormattedString()
     {
-        var result = $"{ButtonEnumExt.ToFormattedString(Button)}";
+        var result = $"{Button}";
 
         if (IsBreak)
         {

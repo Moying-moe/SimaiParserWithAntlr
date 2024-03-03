@@ -6,7 +6,7 @@ namespace SimaiParserWithAntlr.NoteLayerParser.Notes;
 
 public class ParserHoldNote : ParserNoteBase
 {
-    public ParserHoldNote(string rawText, TextPositionRange range, ButtonEnum button, bool isBreak, bool isEx, NoteDuration duration) : base(rawText, range)
+    public ParserHoldNote(string rawText, TextPositionRange range, int button, bool isBreak, bool isEx, NoteDuration duration) : base(rawText, range)
     {
         Button = button;
         IsBreak = isBreak;
@@ -14,14 +14,14 @@ public class ParserHoldNote : ParserNoteBase
         Duration = duration;
     }
 
-    public ButtonEnum Button { get; set; }
+    public int Button { get; set; }
     public bool IsBreak { get; set; }
     public bool IsEx { get; set; }
     public NoteDuration Duration { get; set; }
 
     public override string GetFormattedString()
     {
-        var result = $"{ButtonEnumExt.ToFormattedString(Button)}";
+        var result = $"{Button}";
         
         if (IsBreak)
         {
