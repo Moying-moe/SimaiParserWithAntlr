@@ -12,21 +12,21 @@ public class NoteBlockTest
     private readonly ITestOutputHelper _testOutputHelper;
     private const double EPS = 1e-5;
 
-    private static readonly Dictionary<string, Func<NoteBase, bool>> BUTTON_CHECK_MAP = Enum
+    private static readonly Dictionary<string, Func<ParserNoteBase, bool>> BUTTON_CHECK_MAP = Enum
         .GetValues(typeof(ButtonEnum))
         .Cast<ButtonEnum>()
         .Where(button => button != ButtonEnum.Unknown)
         .ToDictionary(
             ButtonEnumExt.ToFormattedString,
-            button => new Func<NoteBase, bool>(note =>
+            button => new Func<ParserNoteBase, bool>(note =>
             {
                 ButtonEnum btn;
                 switch (note)
                 {
-                    case TapNote tap:
+                    case ParserTapNote tap:
                         btn = tap.Button;
                         break;
-                    case HoldNote hold:
+                    case ParserHoldNote hold:
                         btn = hold.Button;
                         break;
                     default:
@@ -37,7 +37,7 @@ public class NoteBlockTest
             })
         );
 
-    private static readonly Dictionary<DurationTypeEnum, KeyValuePair<string, Func<NoteBase, bool>>>
+    private static readonly Dictionary<DurationTypeEnum, KeyValuePair<string, Func<ParserNoteBase, bool>>>
         DURATION_CHECK_MAP = new()
         {
             {
@@ -72,21 +72,21 @@ public class NoteBlockTest
             }
         };
 
-    private static readonly Dictionary<string, Func<NoteBase, bool>> AREA_CHECK_MAP = Enum.GetValues(typeof(AreaEnum))
+    private static readonly Dictionary<string, Func<ParserNoteBase, bool>> AREA_CHECK_MAP = Enum.GetValues(typeof(AreaEnum))
         .Cast<AreaEnum>()
         .Where(area => area != AreaEnum.Unknown)
         .ToDictionary(
             AreaEnumExt.ToFormattedString,
-            area => new Func<NoteBase, bool>(note =>
+            area => new Func<ParserNoteBase, bool>(note =>
             {
                 AreaEnum noteArea;
 
                 switch (note)
                 {
-                    case TouchNote touch:
+                    case ParserTouchNote touch:
                         noteArea = touch.Area;
                         break;
-                    case TouchHoldNote touchHold:
+                    case ParserTouchHoldNote touchHold:
                         noteArea = touchHold.Area;
                         break;
                     default:
@@ -102,19 +102,19 @@ public class NoteBlockTest
         _testOutputHelper = testOutputHelper;
     }
 
-    private static KeyValuePair<string, Func<NoteBase, bool>> CreateDurationCheck(
+    private static KeyValuePair<string, Func<ParserNoteBase, bool>> CreateDurationCheck(
         string durationString, DurationTypeEnum type, int? fracDenominator = null, int? fracNumerator = null,
         float? delay = null, float? time = null, float? bpm = null)
     {
-        return KeyValuePair.Create(durationString, (Func<NoteBase, bool>)(note =>
+        return KeyValuePair.Create(durationString, (Func<ParserNoteBase, bool>)(note =>
         {
             NoteDuration duration;
             switch (note)
             {
-                case HoldNote hold:
+                case ParserHoldNote hold:
                     duration = hold.Duration;
                     break;
-                case TouchHoldNote touchHold:
+                case ParserTouchHoldNote touchHold:
                     duration = touchHold.Duration;
                     break;
                 default:
@@ -179,12 +179,12 @@ Ch[8:1],Cfh[#0.5],Chf[120#8:1],C1fh[2.5##8:1],C2h[2.5##1.5],Chfhh[2.5##120#8:1],
     [Fact]
     public void Tap_CorrectFormat()
     {
-        Dictionary<string, Func<NoteBase, bool>> markCheckMap = new()
+        Dictionary<string, Func<ParserNoteBase, bool>> markCheckMap = new()
         {
-            { "", note => note is TapNote { IsBreak: false, IsEx: false } },
-            { "b", note => note is TapNote { IsBreak: true, IsEx: false } },
-            { "x", note => note is TapNote { IsBreak: false, IsEx: true } },
-            { "bx", note => note is TapNote { IsBreak: true, IsEx: true } }
+            { "", note => note is ParserTapNote { IsBreak: false, IsEx: false } },
+            { "b", note => note is ParserTapNote { IsBreak: true, IsEx: false } },
+            { "x", note => note is ParserTapNote { IsBreak: false, IsEx: true } },
+            { "bx", note => note is ParserTapNote { IsBreak: true, IsEx: true } }
         };
 
         new CheckChain().Iter(BUTTON_CHECK_MAP).Iter(markCheckMap).Check();
@@ -197,11 +197,11 @@ Ch[8:1],Cfh[#0.5],Chf[120#8:1],C1fh[2.5##8:1],C2h[2.5##1.5],Chfhh[2.5##120#8:1],
     [Fact]
     public void Tap_DuplicateNoteMarks()
     {
-        Dictionary<string, Func<NoteBase, bool>> markCheckMap = new()
+        Dictionary<string, Func<ParserNoteBase, bool>> markCheckMap = new()
         {
-            { "bb", note => note is TapNote { IsBreak: true, IsEx: false } },
-            { "xx", note => note is TapNote { IsBreak: false, IsEx: true } },
-            { "bxbbx", note => note is TapNote { IsBreak: true, IsEx: true } }
+            { "bb", note => note is ParserTapNote { IsBreak: true, IsEx: false } },
+            { "xx", note => note is ParserTapNote { IsBreak: false, IsEx: true } },
+            { "bxbbx", note => note is ParserTapNote { IsBreak: true, IsEx: true } }
         };
 
         new CheckChain().Iter(BUTTON_CHECK_MAP).Iter(markCheckMap).RequireWarning(I18nKeyEnum.DuplicateNoteMarks)
@@ -215,14 +215,14 @@ Ch[8:1],Cfh[#0.5],Chf[120#8:1],C1fh[2.5##8:1],C2h[2.5##1.5],Chfhh[2.5##120#8:1],
     [Fact]
     public void Hold_CorrectFormat()
     {
-        Dictionary<string, Func<NoteBase, bool>> markCheckMap = new()
+        Dictionary<string, Func<ParserNoteBase, bool>> markCheckMap = new()
         {
-            { "h", note => note is HoldNote { IsBreak: false, IsEx: false } },
-            { "bh", note => note is HoldNote { IsBreak: true, IsEx: false } },
-            { "xh", note => note is HoldNote { IsBreak: false, IsEx: true } },
-            { "bxh", note => note is HoldNote { IsBreak: true, IsEx: true } }
+            { "h", note => note is ParserHoldNote { IsBreak: false, IsEx: false } },
+            { "bh", note => note is ParserHoldNote { IsBreak: true, IsEx: false } },
+            { "xh", note => note is ParserHoldNote { IsBreak: false, IsEx: true } },
+            { "bxh", note => note is ParserHoldNote { IsBreak: true, IsEx: true } }
         };
-        Dictionary<string, Func<NoteBase, bool>> durCheckMap = new()
+        Dictionary<string, Func<ParserNoteBase, bool>> durCheckMap = new()
         {
             { DURATION_CHECK_MAP[DurationTypeEnum.Empty].Key, DURATION_CHECK_MAP[DurationTypeEnum.Empty].Value },
             { DURATION_CHECK_MAP[DurationTypeEnum.Fraction].Key, DURATION_CHECK_MAP[DurationTypeEnum.Fraction].Value },
@@ -243,14 +243,14 @@ Ch[8:1],Cfh[#0.5],Chf[120#8:1],C1fh[2.5##8:1],C2h[2.5##1.5],Chfhh[2.5##120#8:1],
     [Fact]
     public void Hold_UnsupportedDurationType()
     {
-        Dictionary<string, Func<NoteBase, bool>> markCheckMap = new()
+        Dictionary<string, Func<ParserNoteBase, bool>> markCheckMap = new()
         {
-            { "h", note => note is HoldNote { IsBreak: false, IsEx: false } },
-            { "bh", note => note is HoldNote { IsBreak: true, IsEx: false } },
-            { "xh", note => note is HoldNote { IsBreak: false, IsEx: true } },
-            { "bxh", note => note is HoldNote { IsBreak: true, IsEx: true } }
+            { "h", note => note is ParserHoldNote { IsBreak: false, IsEx: false } },
+            { "bh", note => note is ParserHoldNote { IsBreak: true, IsEx: false } },
+            { "xh", note => note is ParserHoldNote { IsBreak: false, IsEx: true } },
+            { "bxh", note => note is ParserHoldNote { IsBreak: true, IsEx: true } }
         };
-        Dictionary<string, Func<NoteBase, bool>> durCheckMap = new()
+        Dictionary<string, Func<ParserNoteBase, bool>> durCheckMap = new()
         {
             { DURATION_CHECK_MAP[DurationTypeEnum.BpmTime].Key, DURATION_CHECK_MAP[DurationTypeEnum.BpmTime].Value },
             {
@@ -277,16 +277,16 @@ Ch[8:1],Cfh[#0.5],Chf[120#8:1],C1fh[2.5##8:1],C2h[2.5##1.5],Chfhh[2.5##120#8:1],
     [Fact]
     public void Hold_HoldMarkNotAtEnd()
     {
-        Dictionary<string, Func<NoteBase, bool>> markCheckMap = new()
+        Dictionary<string, Func<ParserNoteBase, bool>> markCheckMap = new()
         {
-            { "hb", note => note is HoldNote { IsBreak: true, IsEx: false } },
-            { "hx", note => note is HoldNote { IsBreak: false, IsEx: true } },
-            { "hbx", note => note is HoldNote { IsBreak: true, IsEx: true } },
-            { "hxb", note => note is HoldNote { IsBreak: true, IsEx: true } },
-            { "bhx", note => note is HoldNote { IsBreak: true, IsEx: true } },
-            { "xhb", note => note is HoldNote { IsBreak: true, IsEx: true } }
+            { "hb", note => note is ParserHoldNote { IsBreak: true, IsEx: false } },
+            { "hx", note => note is ParserHoldNote { IsBreak: false, IsEx: true } },
+            { "hbx", note => note is ParserHoldNote { IsBreak: true, IsEx: true } },
+            { "hxb", note => note is ParserHoldNote { IsBreak: true, IsEx: true } },
+            { "bhx", note => note is ParserHoldNote { IsBreak: true, IsEx: true } },
+            { "xhb", note => note is ParserHoldNote { IsBreak: true, IsEx: true } }
         };
-        Dictionary<string, Func<NoteBase, bool>> durCheckMap = new()
+        Dictionary<string, Func<ParserNoteBase, bool>> durCheckMap = new()
         {
             { DURATION_CHECK_MAP[DurationTypeEnum.Empty].Key, DURATION_CHECK_MAP[DurationTypeEnum.Empty].Value },
             { DURATION_CHECK_MAP[DurationTypeEnum.Fraction].Key, DURATION_CHECK_MAP[DurationTypeEnum.Fraction].Value },
@@ -308,23 +308,23 @@ Ch[8:1],Cfh[#0.5],Chf[120#8:1],C1fh[2.5##8:1],C2h[2.5##1.5],Chfhh[2.5##120#8:1],
     [Fact]
     public void Hold_DuplicateNoteMarks()
     {
-        Dictionary<string, Func<NoteBase, bool>> markCheckMap = new()
+        Dictionary<string, Func<ParserNoteBase, bool>> markCheckMap = new()
         {
-            { "hh", note => note is HoldNote { IsBreak: false, IsEx: false } },
-            { "bbh", note => note is HoldNote { IsBreak: true, IsEx: false } },
-            { "bhb", note => note is HoldNote { IsBreak: true, IsEx: false } },
-            { "hbb", note => note is HoldNote { IsBreak: true, IsEx: false } },
-            { "xxh", note => note is HoldNote { IsBreak: false, IsEx: true } },
-            { "xhx", note => note is HoldNote { IsBreak: false, IsEx: true } },
-            { "hxx", note => note is HoldNote { IsBreak: false, IsEx: true } },
-            { "xhh", note => note is HoldNote { IsBreak: false, IsEx: true } },
-            { "hxh", note => note is HoldNote { IsBreak: false, IsEx: true } },
-            { "hhx", note => note is HoldNote { IsBreak: false, IsEx: true } },
-            { "xxbh", note => note is HoldNote { IsBreak: true, IsEx: true } },
-            { "xxhb", note => note is HoldNote { IsBreak: true, IsEx: true } },
-            { "hxxb", note => note is HoldNote { IsBreak: true, IsEx: true } }
+            { "hh", note => note is ParserHoldNote { IsBreak: false, IsEx: false } },
+            { "bbh", note => note is ParserHoldNote { IsBreak: true, IsEx: false } },
+            { "bhb", note => note is ParserHoldNote { IsBreak: true, IsEx: false } },
+            { "hbb", note => note is ParserHoldNote { IsBreak: true, IsEx: false } },
+            { "xxh", note => note is ParserHoldNote { IsBreak: false, IsEx: true } },
+            { "xhx", note => note is ParserHoldNote { IsBreak: false, IsEx: true } },
+            { "hxx", note => note is ParserHoldNote { IsBreak: false, IsEx: true } },
+            { "xhh", note => note is ParserHoldNote { IsBreak: false, IsEx: true } },
+            { "hxh", note => note is ParserHoldNote { IsBreak: false, IsEx: true } },
+            { "hhx", note => note is ParserHoldNote { IsBreak: false, IsEx: true } },
+            { "xxbh", note => note is ParserHoldNote { IsBreak: true, IsEx: true } },
+            { "xxhb", note => note is ParserHoldNote { IsBreak: true, IsEx: true } },
+            { "hxxb", note => note is ParserHoldNote { IsBreak: true, IsEx: true } }
         };
-        Dictionary<string, Func<NoteBase, bool>> durCheckMap = new()
+        Dictionary<string, Func<ParserNoteBase, bool>> durCheckMap = new()
         {
             { DURATION_CHECK_MAP[DurationTypeEnum.Empty].Key, DURATION_CHECK_MAP[DurationTypeEnum.Empty].Value },
             { DURATION_CHECK_MAP[DurationTypeEnum.Fraction].Key, DURATION_CHECK_MAP[DurationTypeEnum.Fraction].Value },
@@ -346,10 +346,10 @@ Ch[8:1],Cfh[#0.5],Chf[120#8:1],C1fh[2.5##8:1],C2h[2.5##1.5],Chfhh[2.5##120#8:1],
     [Fact]
     public void Touch_CorrectFormat()
     {
-        Dictionary<string, Func<NoteBase, bool>> markCheckMap = new()
+        Dictionary<string, Func<ParserNoteBase, bool>> markCheckMap = new()
         {
-            { "", note => note is TouchNote { IsFirework: false } },
-            { "f", note => note is TouchNote { IsFirework: true } }
+            { "", note => note is ParserTouchNote { IsFirework: false } },
+            { "f", note => note is ParserTouchNote { IsFirework: true } }
         };
 
         new CheckChain().Iter(AREA_CHECK_MAP).Iter(markCheckMap).Check();
@@ -362,10 +362,10 @@ Ch[8:1],Cfh[#0.5],Chf[120#8:1],C1fh[2.5##8:1],C2h[2.5##1.5],Chfhh[2.5##120#8:1],
     [Fact]
     public void Touch_DuplicateNoteMarks()
     {
-        Dictionary<string, Func<NoteBase, bool>> markCheckMap = new()
+        Dictionary<string, Func<ParserNoteBase, bool>> markCheckMap = new()
         {
-            { "ff", note => note is TouchNote { IsFirework: true } },
-            { "fff", note => note is TouchNote { IsFirework: true } }
+            { "ff", note => note is ParserTouchNote { IsFirework: true } },
+            { "fff", note => note is ParserTouchNote { IsFirework: true } }
         };
 
         new CheckChain().Iter(AREA_CHECK_MAP).Iter(markCheckMap).RequireWarning(I18nKeyEnum.DuplicateNoteMarks).Check();
@@ -378,12 +378,12 @@ Ch[8:1],Cfh[#0.5],Chf[120#8:1],C1fh[2.5##8:1],C2h[2.5##1.5],Chfhh[2.5##120#8:1],
     [Fact]
     public void TouchHold_CorrectFormat()
     {
-        Dictionary<string, Func<NoteBase, bool>> markCheckMap = new()
+        Dictionary<string, Func<ParserNoteBase, bool>> markCheckMap = new()
         {
-            { "h", note => note is TouchHoldNote { IsFirework: false } },
-            { "fh", note => note is TouchHoldNote { IsFirework: true } },
+            { "h", note => note is ParserTouchHoldNote { IsFirework: false } },
+            { "fh", note => note is ParserTouchHoldNote { IsFirework: true } },
         };
-        Dictionary<string, Func<NoteBase, bool>> durCheckMap = new()
+        Dictionary<string, Func<ParserNoteBase, bool>> durCheckMap = new()
         {
             { DURATION_CHECK_MAP[DurationTypeEnum.Empty].Key, DURATION_CHECK_MAP[DurationTypeEnum.Empty].Value },
             { DURATION_CHECK_MAP[DurationTypeEnum.Fraction].Key, DURATION_CHECK_MAP[DurationTypeEnum.Fraction].Value },
@@ -404,12 +404,12 @@ Ch[8:1],Cfh[#0.5],Chf[120#8:1],C1fh[2.5##8:1],C2h[2.5##1.5],Chfhh[2.5##120#8:1],
     [Fact]
     public void TouchHold_UnsupportedDurationType()
     {
-        Dictionary<string, Func<NoteBase, bool>> markCheckMap = new()
+        Dictionary<string, Func<ParserNoteBase, bool>> markCheckMap = new()
         {
-            { "h", note => note is TouchHoldNote { IsFirework: false } },
-            { "fh", note => note is TouchHoldNote { IsFirework: true } },
+            { "h", note => note is ParserTouchHoldNote { IsFirework: false } },
+            { "fh", note => note is ParserTouchHoldNote { IsFirework: true } },
         };
-        Dictionary<string, Func<NoteBase, bool>> durCheckMap = new()
+        Dictionary<string, Func<ParserNoteBase, bool>> durCheckMap = new()
         {
             { DURATION_CHECK_MAP[DurationTypeEnum.BpmTime].Key, DURATION_CHECK_MAP[DurationTypeEnum.BpmTime].Value },
             {
@@ -436,11 +436,11 @@ Ch[8:1],Cfh[#0.5],Chf[120#8:1],C1fh[2.5##8:1],C2h[2.5##1.5],Chfhh[2.5##120#8:1],
     [Fact]
     public void TouchHold_HoldMarkNotAtEnd()
     {
-        Dictionary<string, Func<NoteBase, bool>> markCheckMap = new()
+        Dictionary<string, Func<ParserNoteBase, bool>> markCheckMap = new()
         {
-            { "hf", note => note is TouchHoldNote { IsFirework: true } },
+            { "hf", note => note is ParserTouchHoldNote { IsFirework: true } },
         };
-        Dictionary<string, Func<NoteBase, bool>> durCheckMap = new()
+        Dictionary<string, Func<ParserNoteBase, bool>> durCheckMap = new()
         {
             { DURATION_CHECK_MAP[DurationTypeEnum.Empty].Key, DURATION_CHECK_MAP[DurationTypeEnum.Empty].Value },
             { DURATION_CHECK_MAP[DurationTypeEnum.Fraction].Key, DURATION_CHECK_MAP[DurationTypeEnum.Fraction].Value },
@@ -462,17 +462,17 @@ Ch[8:1],Cfh[#0.5],Chf[120#8:1],C1fh[2.5##8:1],C2h[2.5##1.5],Chfhh[2.5##120#8:1],
     [Fact]
     public void TouchHold_DuplicateNoteMarks()
     {
-        Dictionary<string, Func<NoteBase, bool>> markCheckMap = new()
+        Dictionary<string, Func<ParserNoteBase, bool>> markCheckMap = new()
         {
-            { "hh", note => note is TouchHoldNote { IsFirework: false } },
-            { "fhf", note => note is TouchHoldNote { IsFirework: true } },
-            { "ffh", note => note is TouchHoldNote { IsFirework: true } },
-            { "hff", note => note is TouchHoldNote { IsFirework: true } },
-            { "fhh", note => note is TouchHoldNote { IsFirework: true } },
-            { "hhf", note => note is TouchHoldNote { IsFirework: true } },
-            { "hfh", note => note is TouchHoldNote { IsFirework: true } },
+            { "hh", note => note is ParserTouchHoldNote { IsFirework: false } },
+            { "fhf", note => note is ParserTouchHoldNote { IsFirework: true } },
+            { "ffh", note => note is ParserTouchHoldNote { IsFirework: true } },
+            { "hff", note => note is ParserTouchHoldNote { IsFirework: true } },
+            { "fhh", note => note is ParserTouchHoldNote { IsFirework: true } },
+            { "hhf", note => note is ParserTouchHoldNote { IsFirework: true } },
+            { "hfh", note => note is ParserTouchHoldNote { IsFirework: true } },
         };
-        Dictionary<string, Func<NoteBase, bool>> durCheckMap = new()
+        Dictionary<string, Func<ParserNoteBase, bool>> durCheckMap = new()
         {
             { DURATION_CHECK_MAP[DurationTypeEnum.Empty].Key, DURATION_CHECK_MAP[DurationTypeEnum.Empty].Value },
             { DURATION_CHECK_MAP[DurationTypeEnum.Fraction].Key, DURATION_CHECK_MAP[DurationTypeEnum.Fraction].Value },
@@ -494,12 +494,12 @@ Ch[8:1],Cfh[#0.5],Chf[120#8:1],C1fh[2.5##8:1],C2h[2.5##1.5],Chfhh[2.5##120#8:1],
     [Fact]
     public void Slide_SimpleFormat()
     {
-        Dictionary<string, Func<NoteBase, bool>> slideCheckMap = new()
+        Dictionary<string, Func<ParserNoteBase, bool>> slideCheckMap = new()
         {
             {
                 "1-5[8:1]", note =>
                 {
-                    if (note is not SlideNote slide)
+                    if (note is not ParserSlideNote slide)
                     {
                         return false;
                     }
@@ -518,7 +518,7 @@ Ch[8:1],Cfh[#0.5],Chf[120#8:1],C1fh[2.5##8:1],C2h[2.5##1.5],Chfhh[2.5##120#8:1],
             {
                 "1b-5[8:1]", note =>
                 {
-                    if (note is not SlideNote slide)
+                    if (note is not ParserSlideNote slide)
                     {
                         return false;
                     }
@@ -537,7 +537,7 @@ Ch[8:1],Cfh[#0.5],Chf[120#8:1],C1fh[2.5##8:1],C2h[2.5##1.5],Chfhh[2.5##120#8:1],
             {
                 "1x-5[8:1]", note =>
                 {
-                    if (note is not SlideNote slide)
+                    if (note is not ParserSlideNote slide)
                     {
                         return false;
                     }
@@ -556,7 +556,7 @@ Ch[8:1],Cfh[#0.5],Chf[120#8:1],C1fh[2.5##8:1],C2h[2.5##1.5],Chfhh[2.5##120#8:1],
             {
                 "1bx-5[8:1]", note =>
                 {
-                    if (note is not SlideNote slide)
+                    if (note is not ParserSlideNote slide)
                     {
                         return false;
                     }
@@ -575,7 +575,7 @@ Ch[8:1],Cfh[#0.5],Chf[120#8:1],C1fh[2.5##8:1],C2h[2.5##1.5],Chfhh[2.5##120#8:1],
             {
                 "1b-5b[8:1]", note =>
                 {
-                    if (note is not SlideNote slide)
+                    if (note is not ParserSlideNote slide)
                     {
                         return false;
                     }
@@ -594,7 +594,7 @@ Ch[8:1],Cfh[#0.5],Chf[120#8:1],C1fh[2.5##8:1],C2h[2.5##1.5],Chfhh[2.5##120#8:1],
             {
                 "1b-5[8:1]b", note =>
                 {
-                    if (note is not SlideNote slide)
+                    if (note is not ParserSlideNote slide)
                     {
                         return false;
                     }
@@ -613,7 +613,7 @@ Ch[8:1],Cfh[#0.5],Chf[120#8:1],C1fh[2.5##8:1],C2h[2.5##1.5],Chfhh[2.5##120#8:1],
             {
                 "1>5[8:1]", note =>
                 {
-                    if (note is not SlideNote slide)
+                    if (note is not ParserSlideNote slide)
                     {
                         return false;
                     }
@@ -632,7 +632,7 @@ Ch[8:1],Cfh[#0.5],Chf[120#8:1],C1fh[2.5##8:1],C2h[2.5##1.5],Chfhh[2.5##120#8:1],
             {
                 "1b<5[8:1]", note =>
                 {
-                    if (note is not SlideNote slide)
+                    if (note is not ParserSlideNote slide)
                     {
                         return false;
                     }
@@ -651,7 +651,7 @@ Ch[8:1],Cfh[#0.5],Chf[120#8:1],C1fh[2.5##8:1],C2h[2.5##1.5],Chfhh[2.5##120#8:1],
             {
                 "1x^4[8:1]", note =>
                 {
-                    if (note is not SlideNote slide)
+                    if (note is not ParserSlideNote slide)
                     {
                         return false;
                     }
@@ -670,7 +670,7 @@ Ch[8:1],Cfh[#0.5],Chf[120#8:1],C1fh[2.5##8:1],C2h[2.5##1.5],Chfhh[2.5##120#8:1],
             {
                 "1bxv4[8:1]", note =>
                 {
-                    if (note is not SlideNote slide)
+                    if (note is not ParserSlideNote slide)
                     {
                         return false;
                     }
@@ -689,7 +689,7 @@ Ch[8:1],Cfh[#0.5],Chf[120#8:1],C1fh[2.5##8:1],C2h[2.5##1.5],Chfhh[2.5##120#8:1],
             {
                 "1bs5b[8:1]", note =>
                 {
-                    if (note is not SlideNote slide)
+                    if (note is not ParserSlideNote slide)
                     {
                         return false;
                     }
@@ -708,7 +708,7 @@ Ch[8:1],Cfh[#0.5],Chf[120#8:1],C1fh[2.5##8:1],C2h[2.5##1.5],Chfhh[2.5##120#8:1],
             {
                 "1bz5[8:1]b", note =>
                 {
-                    if (note is not SlideNote slide)
+                    if (note is not ParserSlideNote slide)
                     {
                         return false;
                     }
@@ -727,7 +727,7 @@ Ch[8:1],Cfh[#0.5],Chf[120#8:1],C1fh[2.5##8:1],C2h[2.5##1.5],Chfhh[2.5##120#8:1],
             {
                 "1w5[8:1]", note =>
                 {
-                    if (note is not SlideNote slide)
+                    if (note is not ParserSlideNote slide)
                     {
                         return false;
                     }
@@ -746,7 +746,7 @@ Ch[8:1],Cfh[#0.5],Chf[120#8:1],C1fh[2.5##8:1],C2h[2.5##1.5],Chfhh[2.5##120#8:1],
             {
                 "1bp5[8:1]", note =>
                 {
-                    if (note is not SlideNote slide)
+                    if (note is not ParserSlideNote slide)
                     {
                         return false;
                     }
@@ -765,7 +765,7 @@ Ch[8:1],Cfh[#0.5],Chf[120#8:1],C1fh[2.5##8:1],C2h[2.5##1.5],Chfhh[2.5##120#8:1],
             {
                 "1xq5[8:1]", note =>
                 {
-                    if (note is not SlideNote slide)
+                    if (note is not ParserSlideNote slide)
                     {
                         return false;
                     }
@@ -784,7 +784,7 @@ Ch[8:1],Cfh[#0.5],Chf[120#8:1],C1fh[2.5##8:1],C2h[2.5##1.5],Chfhh[2.5##120#8:1],
             {
                 "1bxpp5[8:1]", note =>
                 {
-                    if (note is not SlideNote slide)
+                    if (note is not ParserSlideNote slide)
                     {
                         return false;
                     }
@@ -803,7 +803,7 @@ Ch[8:1],Cfh[#0.5],Chf[120#8:1],C1fh[2.5##8:1],C2h[2.5##1.5],Chfhh[2.5##120#8:1],
             {
                 "1bqq5b[8:1]", note =>
                 {
-                    if (note is not SlideNote slide)
+                    if (note is not ParserSlideNote slide)
                     {
                         return false;
                     }
@@ -822,7 +822,7 @@ Ch[8:1],Cfh[#0.5],Chf[120#8:1],C1fh[2.5##8:1],C2h[2.5##1.5],Chfhh[2.5##120#8:1],
             {
                 "1bV35[8:1]b", note =>
                 {
-                    if (note is not SlideNote slide)
+                    if (note is not ParserSlideNote slide)
                     {
                         return false;
                     }
@@ -847,11 +847,11 @@ Ch[8:1],Cfh[#0.5],Chf[120#8:1],C1fh[2.5##8:1],C2h[2.5##1.5],Chfhh[2.5##120#8:1],
 
     private class CheckChain
     {
-        private readonly List<Dictionary<string, Func<NoteBase, bool>>> _checkList = new();
+        private readonly List<Dictionary<string, Func<ParserNoteBase, bool>>> _checkList = new();
         private readonly HashSet<I18nKeyEnum> _errKeys = new();
         private readonly HashSet<I18nKeyEnum> _warnKeys = new();
 
-        public CheckChain Iter(Dictionary<string, Func<NoteBase, bool>> checkMap)
+        public CheckChain Iter(Dictionary<string, Func<ParserNoteBase, bool>> checkMap)
         {
             _checkList.Add(checkMap);
             return this;
@@ -871,10 +871,10 @@ Ch[8:1],Cfh[#0.5],Chf[120#8:1],C1fh[2.5##8:1],C2h[2.5##1.5],Chfhh[2.5##120#8:1],
 
         public void Check()
         {
-            SubCheck(0, "", new List<Func<NoteBase, bool>>());
+            SubCheck(0, "", new List<Func<ParserNoteBase, bool>>());
         }
 
-        private void SubCheck(int layer, string noteString, List<Func<NoteBase, bool>> checkFunc)
+        private void SubCheck(int layer, string noteString, List<Func<ParserNoteBase, bool>> checkFunc)
         {
             if (layer == _checkList.Count)
             {
@@ -917,7 +917,7 @@ Ch[8:1],Cfh[#0.5],Chf[120#8:1],C1fh[2.5##8:1],C2h[2.5##1.5],Chfhh[2.5##120#8:1],
                 // iter layer. recur
                 foreach (var each in _checkList[layer])
                 {
-                    var newCheckFunc = new List<Func<NoteBase, bool>>(checkFunc) { each.Value };
+                    var newCheckFunc = new List<Func<ParserNoteBase, bool>>(checkFunc) { each.Value };
                     SubCheck(layer + 1, noteString + each.Key, newCheckFunc);
                 }
             }

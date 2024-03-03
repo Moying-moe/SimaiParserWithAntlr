@@ -5,7 +5,7 @@ using SimaiParserWithAntlr.NoteLayerParser.Exceptions;
 
 namespace SimaiParserWithAntlr.NoteLayerParser.Notes;
 
-public class SlideNote : NoteBase
+public class ParserSlideNote : ParserNoteBase
 {
     public class SlidePart
     {
@@ -125,7 +125,7 @@ public class SlideNote : NoteBase
     public bool IsHeadless { get; set; }
     public List<SlideBody> SlideBodies { get; set; }
 
-    public SlideNote(string rawText, TextPositionRange range, ButtonEnum button, bool isBreakTap, bool isExTap,
+    public ParserSlideNote(string rawText, TextPositionRange range, ButtonEnum button, bool isBreakTap, bool isExTap,
         bool isHeadless, List<SlideBody> slideBodies) : base(rawText, range)
     {
         Button = button;
@@ -135,7 +135,7 @@ public class SlideNote : NoteBase
         SlideBodies = slideBodies;
     }
 
-    public SlideNote(string rawText, TextPositionRange range, ButtonEnum button, bool isBreakTap, bool isExTap,
+    public ParserSlideNote(string rawText, TextPositionRange range, ButtonEnum button, bool isBreakTap, bool isExTap,
         bool isHeadless) : this(rawText, range, button, isBreakTap, isExTap, isHeadless, new List<SlideBody>())
     {
     }

@@ -4,9 +4,9 @@ using SimaiParserWithAntlr.NoteLayerParser.DataModels;
 
 namespace SimaiParserWithAntlr.NoteLayerParser.Notes;
 
-public class HoldNote : NoteBase
+public class ParserHoldNote : ParserNoteBase
 {
-    public HoldNote(string rawText, TextPositionRange range, ButtonEnum button, bool isBreak, bool isEx, NoteDuration duration) : base(rawText, range)
+    public ParserHoldNote(string rawText, TextPositionRange range, ButtonEnum button, bool isBreak, bool isEx, NoteDuration duration) : base(rawText, range)
     {
         Button = button;
         IsBreak = isBreak;

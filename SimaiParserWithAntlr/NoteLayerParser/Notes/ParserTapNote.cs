@@ -3,16 +3,16 @@ using SimaiParserWithAntlr.Enums;
 
 namespace SimaiParserWithAntlr.NoteLayerParser.Notes;
 
-public class TapNote : NoteBase
+public class ParserTapNote : ParserNoteBase
 {
-    public TapNote(string rawText, TextPositionRange range, ButtonEnum button, bool isBreak, bool isEx) : base(rawText, range)
+    public ParserTapNote(string rawText, TextPositionRange range, ButtonEnum button, bool isBreak, bool isEx) : base(rawText, range)
     {
         Button = button;
         IsBreak = isBreak;
         IsEx = isEx;
     }
 
-    public TapNote(string rawText, TextPositionRange range, ButtonEnum button) : base(rawText, range)
+    public ParserTapNote(string rawText, TextPositionRange range, ButtonEnum button) : base(rawText, range)
     {
         Button = button;
     }

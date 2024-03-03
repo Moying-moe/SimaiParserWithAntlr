@@ -13,7 +13,7 @@ public class NoteParser : NoteBlockParserBaseListener
     public string RawText { get; private set; }
     public TextPosition Offset { get; private set; }
 
-    public List<NoteGroup> NoteGroupList { get; } = new();
+    public List<ParserNoteGroup> NoteGroupList { get; } = new();
     public List<WarningInfo> WarningList { get; } = new();
     public List<ErrorInfo> ErrorList { get; } = new();
 
@@ -33,7 +33,7 @@ public class NoteParser : NoteBlockParserBaseListener
     public override void EnterNote_group(NoteBlockParser.Note_groupContext context)
     {
         TextPositionRange groupRange = new(context, Offset);
-        NoteGroup noteGroup = new(context.GetText(), groupRange);
+        ParserNoteGroup noteGroup = new(context.GetText(), groupRange);
 
         if (context.each_tap() is { } eachTap)
         {
@@ -43,9 +43,9 @@ public class NoteParser : NoteBlockParserBaseListener
 
             if (ButtonEnumExt.TryParse(eachTap.pos1.Text, out var btn1) && ButtonEnumExt.TryParse(eachTap.pos2.Text, out var btn2))
             {
-                noteGroup.AddEach(NoteGroup.BuildEach()
-                    .Add(new TapNote(eachTap.pos1.Text, range1, btn1))
-                    .Add(new TapNote(eachTap.pos2.Text, range2, btn2))
+                noteGroup.AddEach(ParserNoteGroup.BuildEach()
+                    .Add(new ParserTapNote(eachTap.pos1.Text, range1, btn1))
+                    .Add(new ParserTapNote(eachTap.pos2.Text, range2, btn2))
                     .Build());
             }
             else
@@ -70,9 +70,9 @@ public class NoteParser : NoteBlockParserBaseListener
     /**
      * Process each groups.
      */
-    private List<NoteBase> ParseEachGroup(NoteBlockParser.Each_groupContext context)
+    private List<ParserNoteBase> ParseEachGroup(NoteBlockParser.Each_groupContext context)
     {
-        List<NoteBase> result = new();
+        List<ParserNoteBase> result = new();
 
         if (context.note() is { } notes)
         {
@@ -126,7 +126,7 @@ public class NoteParser : NoteBlockParserBaseListener
         return result;
     }
 
-    private SlideNote? ParseSlide(NoteBlockParser.SlideContext context)
+    private ParserSlideNote? ParseSlide(NoteBlockParser.SlideContext context)
     {
         TextPositionRange range = new(context, Offset);
 
@@ -170,7 +170,7 @@ public class NoteParser : NoteBlockParserBaseListener
         }
 
         // TODO: headless slide parse and analyze
-        SlideNote slide = new(context.GetText(), range, button, isBreak, isEx, false);
+        ParserSlideNote slide = new(context.GetText(), range, button, isBreak, isEx, false);
 
         // same head slide body
         foreach (var bodyCtx in context.slide_body())
@@ -188,7 +188,7 @@ public class NoteParser : NoteBlockParserBaseListener
         return slide;
     }
 
-    private SlideNote.SlideBody? ParseSlideBody(NoteBlockParser.Slide_bodyContext context)
+    private ParserSlideNote.SlideBody? ParseSlideBody(NoteBlockParser.Slide_bodyContext context)
     {
         TextPositionRange range = new(context, Offset);
         
@@ -208,7 +208,7 @@ public class NoteParser : NoteBlockParserBaseListener
             }
         }
 
-        List<SlideNote.SlidePart> slideChain = new();
+        List<ParserSlideNote.SlidePart> slideChain = new();
         foreach (var part in context.slide_part())
         {
             var tail = part.slide_tail();
@@ -243,8 +243,8 @@ public class NoteParser : NoteBlockParserBaseListener
             }
 
             slideChain.Add(turnBtn == ButtonEnum.Unknown
-                ? new SlideNote.SlidePart(type, stopBtn, duration)
-                : new SlideNote.SlidePart(type, turnBtn, stopBtn, duration));
+                ? new ParserSlideNote.SlidePart(type, stopBtn, duration)
+                : new ParserSlideNote.SlidePart(type, turnBtn, stopBtn, duration));
         }
         
         // last slide part
@@ -277,27 +277,27 @@ public class NoteParser : NoteBlockParserBaseListener
         if (isChainDuration)
         {
             slideChain.Add(lastTurnBtn == ButtonEnum.Unknown
-                ? new SlideNote.SlidePart(lastType, lastStopBtn, lastDuration)
-                : new SlideNote.SlidePart(lastType, lastTurnBtn, lastStopBtn, lastDuration));
+                ? new ParserSlideNote.SlidePart(lastType, lastStopBtn, lastDuration)
+                : new ParserSlideNote.SlidePart(lastType, lastTurnBtn, lastStopBtn, lastDuration));
             
-            return new SlideNote.SlideBody(isBreakSlide, slideChain);
+            return new ParserSlideNote.SlideBody(isBreakSlide, slideChain);
         }
         else
         {
             // Since it's not in chain duration mode, we treat `lastDuration` as the overall duration,
             // not as part of the duration.
             slideChain.Add(lastTurnBtn == ButtonEnum.Unknown
-                ? new SlideNote.SlidePart(lastType, lastStopBtn, null)
-                : new SlideNote.SlidePart(lastType, lastTurnBtn, lastStopBtn, null));
+                ? new ParserSlideNote.SlidePart(lastType, lastStopBtn, null)
+                : new ParserSlideNote.SlidePart(lastType, lastTurnBtn, lastStopBtn, null));
             
-            return new SlideNote.SlideBody(isBreakSlide, slideChain, lastDuration);
+            return new ParserSlideNote.SlideBody(isBreakSlide, slideChain, lastDuration);
         }
     }
 
     /**
      * Process taps. If an error occurs that prevents parsing, returns null.
      */
-    private TapNote? ParseTap(NoteBlockParser.TapContext context)
+    private ParserTapNote? ParseTap(NoteBlockParser.TapContext context)
     {
         TextPositionRange range = new(context, Offset);
 
@@ -340,13 +340,13 @@ public class NoteParser : NoteBlockParserBaseListener
             }
         }
 
-        return new TapNote(context.GetText(), range, button, isBreak, isEx);
+        return new ParserTapNote(context.GetText(), range, button, isBreak, isEx);
     }
     
     /**
      * Process holds. If an error occurs that prevents parsing, returns null.
      */
-    private HoldNote? ParseHold(NoteBlockParser.HoldContext context)
+    private ParserHoldNote? ParseHold(NoteBlockParser.HoldContext context)
     {
         TextPositionRange range = new(context, Offset);
 
@@ -407,13 +407,13 @@ public class NoteParser : NoteBlockParserBaseListener
             ThrowWarning(range, I18nKeyEnum.UnsupportedDurationType, "hold");
         }
 
-        return new HoldNote(context.GetText(), range, button, isBreak, isEx, duration);
+        return new ParserHoldNote(context.GetText(), range, button, isBreak, isEx, duration);
     }
     
     /**
      * Process touch. If an error occurs that prevents parsing, returns null.
      */
-    private TouchNote? ParseTouch(NoteBlockParser.TouchContext context)
+    private ParserTouchNote? ParseTouch(NoteBlockParser.TouchContext context)
     {
         TextPositionRange range = new(context, Offset);
 
@@ -440,13 +440,13 @@ public class NoteParser : NoteBlockParserBaseListener
             }
         }
 
-        return new TouchNote(context.GetText(), range, area, isFirework);
+        return new ParserTouchNote(context.GetText(), range, area, isFirework);
     }
     
     /**
      * Process touch hold. If an error occurs that prevents parsing, returns null.
      */
-    private TouchHoldNote? ParseTouchHold(NoteBlockParser.Touch_holdContext context)
+    private ParserTouchHoldNote? ParseTouchHold(NoteBlockParser.Touch_holdContext context)
     {
         TextPositionRange range = new(context, Offset);
 
@@ -491,7 +491,7 @@ public class NoteParser : NoteBlockParserBaseListener
             ThrowWarning(range, I18nKeyEnum.UnsupportedDurationType, "hold");
         }
         
-        return new TouchHoldNote(context.GetText(), range, area, isFirework, duration);
+        return new ParserTouchHoldNote(context.GetText(), range, area, isFirework, duration);
     }
 
     /**
