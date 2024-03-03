@@ -1,4 +1,4 @@
-namespace SimaiParserWithAntlr.NoteLayerParser.Enums;
+namespace SimaiParserWithAntlr.Enums;
 
 public static class AreaEnumExt
 {

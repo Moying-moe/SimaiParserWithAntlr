@@ -1,6 +1,6 @@
 using SimaiParserWithAntlr.DataModels;
+using SimaiParserWithAntlr.Enums;
 using SimaiParserWithAntlr.NoteLayerParser.DataModels;
-using SimaiParserWithAntlr.NoteLayerParser.Enums;
 
 namespace SimaiParserWithAntlr.NoteLayerParser.Notes;
 

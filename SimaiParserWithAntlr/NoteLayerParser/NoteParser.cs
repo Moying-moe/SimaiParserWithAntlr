@@ -1,9 +1,9 @@
 ﻿using Antlr4.Runtime;
 using Antlr4.Runtime.Tree;
 using SimaiParserWithAntlr.DataModels;
+using SimaiParserWithAntlr.Enums;
 using SimaiParserWithAntlr.I18nModule;
 using SimaiParserWithAntlr.NoteLayerParser.DataModels;
-using SimaiParserWithAntlr.NoteLayerParser.Enums;
 using SimaiParserWithAntlr.NoteLayerParser.Notes;
 
 namespace SimaiParserWithAntlr.NoteLayerParser;
@@ -33,7 +33,7 @@ public class NoteParser : NoteBlockParserBaseListener
     public override void EnterNote_group(NoteBlockParser.Note_groupContext context)
     {
         TextPositionRange groupRange = new(context, Offset);
-        NoteGroup noteGroup = new(groupRange);
+        NoteGroup noteGroup = new(context.GetText(), groupRange);
 
         if (context.each_tap() is { } eachTap)
         {
@@ -44,8 +44,8 @@ public class NoteParser : NoteBlockParserBaseListener
             if (ButtonEnumExt.TryParse(eachTap.pos1.Text, out var btn1) && ButtonEnumExt.TryParse(eachTap.pos2.Text, out var btn2))
             {
                 noteGroup.AddEach(NoteGroup.BuildEach()
-                    .Add(new TapNote(range1, btn1))
-                    .Add(new TapNote(range2, btn2))
+                    .Add(new TapNote(eachTap.pos1.Text, range1, btn1))
+                    .Add(new TapNote(eachTap.pos2.Text, range2, btn2))
                     .Build());
             }
             else
@@ -170,7 +170,7 @@ public class NoteParser : NoteBlockParserBaseListener
         }
 
         // TODO: headless slide parse and analyze
-        SlideNote slide = new(range, button, isBreak, isEx, false);
+        SlideNote slide = new(context.GetText(), range, button, isBreak, isEx, false);
 
         // same head slide body
         foreach (var bodyCtx in context.slide_body())
@@ -340,7 +340,7 @@ public class NoteParser : NoteBlockParserBaseListener
             }
         }
 
-        return new TapNote(range, button, isBreak, isEx);
+        return new TapNote(context.GetText(), range, button, isBreak, isEx);
     }
     
     /**
@@ -407,7 +407,7 @@ public class NoteParser : NoteBlockParserBaseListener
             ThrowWarning(range, I18nKeyEnum.UnsupportedDurationType, "hold");
         }
 
-        return new HoldNote(range, button, isBreak, isEx, duration);
+        return new HoldNote(context.GetText(), range, button, isBreak, isEx, duration);
     }
     
     /**
@@ -440,7 +440,7 @@ public class NoteParser : NoteBlockParserBaseListener
             }
         }
 
-        return new TouchNote(range, area, isFirework);
+        return new TouchNote(context.GetText(), range, area, isFirework);
     }
     
     /**
@@ -491,7 +491,7 @@ public class NoteParser : NoteBlockParserBaseListener
             ThrowWarning(range, I18nKeyEnum.UnsupportedDurationType, "hold");
         }
         
-        return new TouchHoldNote(range, area, isFirework, duration);
+        return new TouchHoldNote(context.GetText(), range, area, isFirework, duration);
     }
 
     /**

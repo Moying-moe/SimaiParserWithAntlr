@@ -1,6 +1,6 @@
 using SimaiParserWithAntlr.Utils;
 
-namespace SimaiParserWithAntlr.NoteLayerParser.Enums;
+namespace SimaiParserWithAntlr.Enums;
 
 public static class SlideTypeEnumExt
 {
