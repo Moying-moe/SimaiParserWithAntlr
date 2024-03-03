@@ -94,38 +94,51 @@ public class ChartParser
                         eachGroup.NoteList.Add(new TapNote(hiSpeed, pTap.Button, pTap.IsBreak, pTap.IsEx, false));
                         break;
                     case ParserHoldNote pHold:
-                    {
-                        NoteTiming duration;
-                        switch (pHold.Duration.Type)
-                        {
-                            case DurationTypeEnum.Fraction or DurationTypeEnum.DelayFraction:
-                                duration = NoteTiming.FromBeat(
-                                    Resolution / pHold.Duration.FracDenominator * pHold.Duration.FracNumerator, Resolution);
-                                duration.Time = CalculateDurationTime(duration, bpm);
-                                break;
-                            case DurationTypeEnum.BpmFraction or DurationTypeEnum.DelayBpmFraction:
-                                duration = NoteTiming.FromBeat(
-                                    Resolution / pHold.Duration.FracDenominator * pHold.Duration.FracNumerator, Resolution);
-                                duration.Time = CalculateDurationTime(duration, pHold.Duration.Bpm);
-                                break;
-                            case DurationTypeEnum.Time or DurationTypeEnum.BpmTime
-                                or DurationTypeEnum.DelayTime:
-                                duration = new NoteTiming(0, 0, pHold.Duration.Time);
-                                break;
-                            case DurationTypeEnum.Empty or DurationTypeEnum.Unknown:
-                            default:
-                                duration = new NoteTiming(0, 0, 0);
-                                break;
-                        }
-                        eachGroup.NoteList.Add(new HoldNote(hiSpeed, pHold.Button, pHold.IsBreak, pHold.IsEx, duration));
+                        ParseDuration(pHold.Duration, bpm, out var hDuration);
+                        eachGroup.NoteList.Add(new HoldNote(hiSpeed, pHold.Button, pHold.IsBreak, pHold.IsEx, hDuration));
                         break;
-                    }
+                    case ParserTouchNote pTouch:
+                        eachGroup.NoteList.Add(new TouchNote(hiSpeed, pTouch.AreaCode, pTouch.AreaNumber,
+                            pTouch.IsFirework));
+                        break;
+                    case ParserTouchHoldNote pTouchHold:
+                        ParseDuration(pTouchHold.Duration, bpm, out var thDuration);
+                        eachGroup.NoteList.Add(new TouchHoldNote(hiSpeed, pTouchHold.AreaCode, pTouchHold.AreaNumber,
+                            pTouchHold.IsFirework, thDuration));
+                        break;
                 }
             }
+            
+            NoteList.Add(eachGroup);
 
             // fake each interval for next group
             noteGroupStartTiming.Add(_fakeEachInterval, Resolution);
             noteGroupStartTiming.Time = CalculateTime(noteGroupStartTiming);
+        }
+    }
+
+    private void ParseDuration(NoteDuration duration, double bpm, out NoteTiming timing)
+    {
+        switch (duration.Type)
+        {
+            case DurationTypeEnum.Fraction or DurationTypeEnum.DelayFraction:
+                timing = NoteTiming.FromBeat(
+                    Resolution / duration.FracDenominator * duration.FracNumerator, Resolution);
+                timing.Time = CalculateDurationTime(timing, bpm);
+                break;
+            case DurationTypeEnum.BpmFraction or DurationTypeEnum.DelayBpmFraction:
+                timing = NoteTiming.FromBeat(
+                    Resolution / duration.FracDenominator * duration.FracNumerator, Resolution);
+                timing.Time = CalculateDurationTime(timing, duration.Bpm);
+                break;
+            case DurationTypeEnum.Time or DurationTypeEnum.BpmTime
+                or DurationTypeEnum.DelayTime:
+                timing = new NoteTiming(0, 0, duration.Time);
+                break;
+            case DurationTypeEnum.Empty or DurationTypeEnum.Unknown:
+            default:
+                timing = new NoteTiming(0, 0, 0);
+                break;
         }
     }
 
