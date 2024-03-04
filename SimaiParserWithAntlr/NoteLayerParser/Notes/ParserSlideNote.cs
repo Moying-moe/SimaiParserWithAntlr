@@ -12,7 +12,7 @@ public class ParserSlideNote : ParserNoteBase
     {
         public SlideTypeEnum Type { get; set; }
 
-        private int TurnButton { get; set; } = ButtonHelper.UNKNOWN_BUTTON;
+        public int TurnButton { get; set; } = ButtonHelper.UNKNOWN_BUTTON;
         public int StopButton { get; set; }
         public NoteDuration? Duration { get; set; }
 

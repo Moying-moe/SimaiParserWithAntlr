@@ -123,13 +123,17 @@ public class NoteTiming : IComparable<NoteTiming>
         return a.CompareTo(b) <= 0;
     }
 
-    public static bool operator ==(NoteTiming a, NoteTiming b)
+    public static bool operator ==(NoteTiming? a, NoteTiming? b)
     {
+        if (ReferenceEquals(null, a))
+        {
+            return ReferenceEquals(null, b);
+        }
         return a.CompareTo(b) == 0;
     }
     
-    public static bool operator !=(NoteTiming a, NoteTiming b)
+    public static bool operator !=(NoteTiming? a, NoteTiming? b)
     {
-        return a.CompareTo(b) != 0;
+        return !(a == b);
     }
 }

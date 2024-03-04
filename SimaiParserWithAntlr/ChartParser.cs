@@ -106,6 +106,46 @@ public class ChartParser
                         eachGroup.NoteList.Add(new TouchHoldNote(hiSpeed, pTouchHold.AreaCode, pTouchHold.AreaNumber,
                             pTouchHold.IsFirework, thDuration));
                         break;
+                    case ParserSlideNote pSlide:
+                        SlideNote slide = new(hiSpeed, pSlide.Button, pSlide.IsBreakTap, pSlide.IsExTap,
+                            pSlide.IsHeadless);
+                        foreach (var pBody in pSlide.SlideBodies)
+                        {
+                            if (pBody.IsChainDuration)
+                            {
+                                NoteTiming? overallDelay = null;
+                                List<SlideNote.SlidePart> slideChain = new();
+                                foreach (var pPart in pBody.SlideChain)
+                                {
+                                    ParseDelayDuration(pPart.Duration!, bpm, out var delay, out var duration);
+                                    slideChain.Add(new SlideNote.SlidePart(pPart.Type, pPart.TurnButton,
+                                        pPart.StopButton, delay, duration));
+                                    
+                                    if (overallDelay == null)
+                                    {
+                                        overallDelay = delay;
+                                    }
+                                }
+
+                                slide.SlideBodies.Add(new SlideNote.SlideBody(pBody.IsBreakSlide, slideChain,
+                                    overallDelay!, null));
+                            }
+                            else
+                            {
+                                List<SlideNote.SlidePart> slideChain = new();
+                                foreach (var pPart in pBody.SlideChain)
+                                {
+                                    slideChain.Add(new SlideNote.SlidePart(pPart.Type, pPart.TurnButton,
+                                        pPart.StopButton, null, null));
+                                }
+                                ParseDelayDuration(pBody.Duration!, bpm, out var delay, out var duration);
+                                slide.SlideBodies.Add(new SlideNote.SlideBody(pBody.IsBreakSlide, slideChain, delay,
+                                    duration));
+                            }
+                        }
+
+                        eachGroup.NoteList.Add(slide);
+                        break;
                 }
             }
             
@@ -114,6 +154,46 @@ public class ChartParser
             // fake each interval for next group
             noteGroupStartTiming.Add(_fakeEachInterval, Resolution);
             noteGroupStartTiming.Time = CalculateTime(noteGroupStartTiming);
+        }
+    }
+
+    private void ParseDelayDuration(NoteDuration duration, double bpm, out NoteTiming delay, out NoteTiming timing)
+    {
+        switch (duration.Type)
+        {
+            case DurationTypeEnum.DelayFraction or DurationTypeEnum.DelayTime or DurationTypeEnum.DelayBpmFraction:
+                delay = new NoteTiming(0, 0, duration.Delay);
+                break;
+            case DurationTypeEnum.BpmTime or DurationTypeEnum.BpmFraction:
+                delay = NoteTiming.FromBeat(Resolution / 4, Resolution);
+                delay.Time = CalculateDurationTime(delay, duration.Bpm);
+                break;
+            default:
+                // Fraction, Time, Empty, Unknown
+                delay = NoteTiming.FromBeat(Resolution / 4, Resolution);
+                delay.Time = CalculateDurationTime(delay, bpm);
+                break;
+        }
+
+        switch (duration.Type)
+        {
+            case DurationTypeEnum.Time or DurationTypeEnum.BpmTime or DurationTypeEnum.DelayTime:
+                timing = new NoteTiming(0, 0, duration.Time);
+                break;
+            case DurationTypeEnum.BpmFraction or DurationTypeEnum.DelayBpmFraction:
+                timing = NoteTiming.FromBeat(Resolution / duration.FracDenominator * duration.FracNumerator,
+                    Resolution);
+                timing.Time = CalculateDurationTime(timing, duration.Bpm);
+                break;
+            case DurationTypeEnum.Fraction or DurationTypeEnum.DelayFraction:
+                timing = NoteTiming.FromBeat(Resolution / duration.FracDenominator * duration.FracNumerator,
+                    Resolution);
+                timing.Time = CalculateDurationTime(timing, bpm);
+                break;
+            default:
+                // Empty, Unknown
+                timing = new NoteTiming(0, 0, 0);
+                break;
         }
     }
 
