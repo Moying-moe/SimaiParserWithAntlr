@@ -1,6 +1,6 @@
 namespace SimaiParserWithAntlr.DataModels;
 
-public class NoteTiming : IComparable<NoteTiming>
+public class NoteTiming : IComparable<NoteTiming>, IEquatable<NoteTiming>
 {
     public static readonly NoteTiming DEFAULT_TIMING = new(1, 0, 0);
     
@@ -123,6 +123,11 @@ public class NoteTiming : IComparable<NoteTiming>
         return a.CompareTo(b) <= 0;
     }
 
+    public override string ToString()
+    {
+        return $"{nameof(Bar)}: {Bar}, {nameof(Beat)}: {Beat}, {nameof(Time)}: {Time}";
+    }
+
     public static bool operator ==(NoteTiming? a, NoteTiming? b)
     {
         if (ReferenceEquals(null, a))
@@ -135,5 +140,35 @@ public class NoteTiming : IComparable<NoteTiming>
     public static bool operator !=(NoteTiming? a, NoteTiming? b)
     {
         return !(a == b);
+    }
+
+    public bool Equals(NoteTiming? other)
+    {
+        return CompareTo(other) == 0;
+    }
+
+    public override bool Equals(object? obj)
+    {
+        if (ReferenceEquals(null, obj))
+        {
+            return false;
+        }
+
+        if (ReferenceEquals(this, obj))
+        {
+            return true;
+        }
+
+        if (obj.GetType() != this.GetType())
+        {
+            return false;
+        }
+
+        return Equals((NoteTiming)obj);
+    }
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(Bar, Beat);
     }
 }
