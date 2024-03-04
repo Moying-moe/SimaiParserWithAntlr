@@ -3,10 +3,6 @@ namespace SimaiParserWithAntlr.DataModels;
 public class NoteTiming : IComparable<NoteTiming>, IEquatable<NoteTiming>
 {
     public static readonly NoteTiming DEFAULT_TIMING = new(1, 0, 0);
-    
-    public int Bar { get; set; }
-    public int Beat { get; set; }
-    public double Time { get; set; }
 
     public NoteTiming(int bar, int beat, double time)
     {
@@ -21,6 +17,36 @@ public class NoteTiming : IComparable<NoteTiming>, IEquatable<NoteTiming>
         Beat = beat;
     }
 
+    public int Bar { get; set; }
+    public int Beat { get; set; }
+    public double Time { get; set; }
+
+    public int CompareTo(NoteTiming? other)
+    {
+        if (ReferenceEquals(this, other))
+        {
+            return 0;
+        }
+
+        if (ReferenceEquals(null, other))
+        {
+            return 1;
+        }
+
+        var barComparison = Bar.CompareTo(other.Bar);
+        if (barComparison != 0)
+        {
+            return barComparison;
+        }
+
+        return Beat.CompareTo(other.Beat);
+    }
+
+    public bool Equals(NoteTiming? other)
+    {
+        return CompareTo(other) == 0;
+    }
+
     private void Flat(int resolution)
     {
         if (Beat >= resolution)
@@ -28,7 +54,7 @@ public class NoteTiming : IComparable<NoteTiming>, IEquatable<NoteTiming>
             Bar += Beat / resolution;
             Beat %= resolution;
         }
-        
+
         if (Beat < 0)
         {
             Bar -= -Beat / resolution;
@@ -73,34 +99,13 @@ public class NoteTiming : IComparable<NoteTiming>, IEquatable<NoteTiming>
 
         return result;
     }
-    
+
     public static NoteTiming Subtract(NoteTiming a, NoteTiming b, int resolution)
     {
         var result = a.Clone();
         result.Subtract(b, resolution);
 
         return result;
-    }
-
-    public int CompareTo(NoteTiming? other)
-    {
-        if (ReferenceEquals(this, other))
-        {
-            return 0;
-        }
-
-        if (ReferenceEquals(null, other))
-        {
-            return 1;
-        }
-
-        var barComparison = Bar.CompareTo(other.Bar);
-        if (barComparison != 0)
-        {
-            return barComparison;
-        }
-
-        return Beat.CompareTo(other.Beat);
     }
 
     public static bool operator >(NoteTiming a, NoteTiming b)
@@ -134,17 +139,13 @@ public class NoteTiming : IComparable<NoteTiming>, IEquatable<NoteTiming>
         {
             return ReferenceEquals(null, b);
         }
+
         return a.CompareTo(b) == 0;
     }
-    
+
     public static bool operator !=(NoteTiming? a, NoteTiming? b)
     {
         return !(a == b);
-    }
-
-    public bool Equals(NoteTiming? other)
-    {
-        return CompareTo(other) == 0;
     }
 
     public override bool Equals(object? obj)
@@ -159,7 +160,7 @@ public class NoteTiming : IComparable<NoteTiming>, IEquatable<NoteTiming>
             return true;
         }
 
-        if (obj.GetType() != this.GetType())
+        if (obj.GetType() != GetType())
         {
             return false;
         }

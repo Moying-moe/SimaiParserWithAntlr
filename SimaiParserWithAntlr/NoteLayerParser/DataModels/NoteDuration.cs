@@ -5,14 +5,14 @@ namespace SimaiParserWithAntlr.NoteLayerParser.DataModels;
 
 public class NoteDuration
 {
-    public DurationTypeEnum Type { get; private set; }
+    private float _bpm;
+    private float _delay;
 
     private int _fracDenominator;
     private int _fracNumerator;
     private float _time;
-    private float _bpm;
-    private float _delay;
-    
+    public DurationTypeEnum Type { get; private set; }
+
     public int FracDenominator
     {
         get
@@ -138,17 +138,17 @@ public class NoteDuration
 
     public static NoteDuration FromFraction(int denominator, int numerator)
     {
-        return new NoteDuration()
+        return new NoteDuration
         {
             Type = DurationTypeEnum.Fraction,
             _fracDenominator = denominator,
             _fracNumerator = numerator
         };
     }
-    
+
     public static NoteDuration FromBpmFraction(float bpm, int denominator, int numerator)
     {
-        return new NoteDuration()
+        return new NoteDuration
         {
             Type = DurationTypeEnum.BpmFraction,
             _bpm = bpm,
@@ -156,29 +156,29 @@ public class NoteDuration
             _fracNumerator = numerator
         };
     }
-    
+
     public static NoteDuration FromTime(float time)
     {
-        return new NoteDuration()
+        return new NoteDuration
         {
             Type = DurationTypeEnum.Time,
             _time = time
         };
     }
-    
+
     public static NoteDuration FromBpmTime(float bpm, float time)
     {
-        return new NoteDuration()
+        return new NoteDuration
         {
             Type = DurationTypeEnum.BpmTime,
             _bpm = bpm,
             _time = time
         };
     }
-    
+
     public static NoteDuration FromDelayFraction(float delay, int denominator, int numerator)
     {
-        return new NoteDuration()
+        return new NoteDuration
         {
             Type = DurationTypeEnum.DelayFraction,
             _delay = delay,
@@ -189,17 +189,17 @@ public class NoteDuration
 
     public static NoteDuration FromDelayTime(float delay, float time)
     {
-        return new NoteDuration()
+        return new NoteDuration
         {
             Type = DurationTypeEnum.DelayTime,
             _delay = delay,
             _time = time
         };
     }
-    
+
     public static NoteDuration FromDelayBpmFraction(float delay, float bpm, int denominator, int numerator)
     {
-        return new NoteDuration()
+        return new NoteDuration
         {
             Type = DurationTypeEnum.DelayBpmFraction,
             _delay = delay,
@@ -211,7 +211,7 @@ public class NoteDuration
 
     public static NoteDuration Empty()
     {
-        return new NoteDuration()
+        return new NoteDuration
         {
             Type = DurationTypeEnum.Empty
         };

@@ -4,11 +4,6 @@ namespace SimaiParserWithAntlr.DataModels.Notes;
 
 public class TapNote : NoteBase
 {
-    public int Button { get; set; }
-    public bool IsBreak { get; set; }
-    public bool IsEx { get; set; }
-    public bool IsFakeStar { get; set; }
-
     public TapNote(double hiSpeed, int button, bool isBreak, bool isEx, bool isFakeStar) : base(NoteTypeEnum.Tap,
         hiSpeed)
     {
@@ -17,4 +12,9 @@ public class TapNote : NoteBase
         IsEx = isEx;
         IsFakeStar = isFakeStar;
     }
+
+    public int Button { get; set; }
+    public bool IsBreak { get; set; }
+    public bool IsEx { get; set; }
+    public bool IsFakeStar { get; set; }
 }

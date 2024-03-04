@@ -9,12 +9,6 @@ namespace SimaiParserWithAntlr.NoteLayerParser.DataModels;
  */
 public class ParserNoteGroup
 {
-    // The outer layer represents a *fake-each note* group list,
-    // and the inner layer represents *each group*.
-    public List<List<ParserNoteBase>> NoteList { get; } = new();
-    public string RawText { get; set; }
-    public TextPositionRange Range { get; set; }
-
     public ParserNoteGroup(string rawText) : this(rawText, TextPositionRange.EMPTY)
     {
     }
@@ -24,6 +18,12 @@ public class ParserNoteGroup
         RawText = rawText;
         Range = range;
     }
+
+    // The outer layer represents a *fake-each note* group list,
+    // and the inner layer represents *each group*.
+    public List<List<ParserNoteBase>> NoteList { get; } = new();
+    public string RawText { get; set; }
+    public TextPositionRange Range { get; set; }
 
     public void AddEach(List<ParserNoteBase> group)
     {

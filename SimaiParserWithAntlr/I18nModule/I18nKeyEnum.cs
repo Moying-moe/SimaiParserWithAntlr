@@ -21,5 +21,5 @@ public enum I18nKeyEnum
     EmptyResolutionSegment,
     EmptyHiSpeedSegment,
     BpmRequired,
-    ResolutionRequired,
+    ResolutionRequired
 }

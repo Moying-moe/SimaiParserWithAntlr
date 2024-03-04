@@ -10,7 +10,8 @@ public class UnsupportedPropInCurrentDurationType : Exception
     {
     }
 
-    public UnsupportedPropInCurrentDurationType(string? message, Exception? innerException) : base(message, innerException)
+    public UnsupportedPropInCurrentDurationType(string? message, Exception? innerException) : base(message,
+        innerException)
     {
     }
 }

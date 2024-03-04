@@ -15,7 +15,7 @@ public class TextPositionTest
     [Fact]
     public void Test1()
     {
-        string text = "0123456789\nabcdefghij\nklmnopqrst\nuvwxyz";
+        var text = "0123456789\nabcdefghij\nklmnopqrst\nuvwxyz";
 
         var range1 = new TextPositionRange(
             new TextPosition(1, 4),

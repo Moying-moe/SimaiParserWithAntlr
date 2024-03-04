@@ -1,11 +1,11 @@
 using SimaiParserWithAntlr.DataModels;
-using SimaiParserWithAntlr.Enums;
 
 namespace SimaiParserWithAntlr.NoteLayerParser.Notes;
 
 public class ParserTapNote : ParserNoteBase
 {
-    public ParserTapNote(string rawText, TextPositionRange range, int button, bool isBreak, bool isEx) : base(rawText, range)
+    public ParserTapNote(string rawText, TextPositionRange range, int button, bool isBreak, bool isEx) : base(rawText,
+        range)
     {
         Button = button;
         IsBreak = isBreak;

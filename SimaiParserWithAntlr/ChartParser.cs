@@ -13,19 +13,19 @@ namespace SimaiParserWithAntlr;
 public class ChartParser
 {
     public const int DEFAULT_RESOLUTION = 384;
-    
-    public string RawText { get; private set; }
-    public List<ChartBpm> BpmList { get; } = new();
-    public List<EachGroup> NoteList { get; } = new();
-    public int Resolution { get; private set; } = DEFAULT_RESOLUTION;
 
-    private NoteTiming _fakeEachInterval = new NoteTiming(0, 1);
+    private NoteTiming _fakeEachInterval = new(0, 1);
     private NoteTiming _timing;
 
     private ChartParser(string rawText)
     {
         RawText = rawText;
     }
+
+    public string RawText { get; }
+    public List<ChartBpm> BpmList { get; } = new();
+    public List<EachGroup> NoteList { get; } = new();
+    public int Resolution { get; private set; } = DEFAULT_RESOLUTION;
 
     private void Analyze()
     {
@@ -43,7 +43,7 @@ public class ChartParser
 
         _timing = new NoteTiming(1, 0, 0);
         _fakeEachInterval = new NoteTiming(0, DEFAULT_RESOLUTION / Resolution);
-        
+
         foreach (var element in structureParser.ElementList)
         {
             if (element is BpmElement bpmElement)
@@ -56,13 +56,13 @@ public class ChartParser
             {
                 continue;
             }
-            
+
             // analyze note block
             var noteParser = NoteParser.GenerateFromText(noteBlockElement.RawText, noteBlockElement.Range.Start);
             AnalyzeNoteBlock(noteParser, (double)noteBlockElement.Bpm!, (int)noteBlockElement.Resolution!,
                 noteBlockElement.HiSpeed);
         }
-        
+
         // TODO: combine same time but not same group in `NoteList`
         Dictionary<NoteTiming, EachGroup> mergeDict = new();
         foreach (var group in NoteList)
@@ -80,13 +80,12 @@ public class ChartParser
         NoteList.Clear();
         NoteList.AddRange(mergeDict.Values);
         NoteList.Sort((a, b) => a.Timing.CompareTo(b.Timing));
-        
     }
 
     private void AnalyzeNoteBlock(NoteParser noteParser, double blockBpm, int blockResolution, double blockHiSpeed)
     {
         var groupInterval = NoteTiming.FromBeat(Resolution / blockResolution, Resolution);
-        
+
         foreach (var noteGroup in noteParser.NoteGroupList)
         {
             AnalyzeNoteGroup(noteGroup, blockBpm, blockHiSpeed);
@@ -98,11 +97,11 @@ public class ChartParser
     private void AnalyzeNoteGroup(ParserNoteGroup noteGroup, double bpm, double hiSpeed)
     {
         var noteGroupStartTiming = _timing.Clone();
-        
+
         foreach (var group in noteGroup.NoteList)
         {
             var eachGroup = new EachGroup(noteGroupStartTiming.Clone());
-            
+
             foreach (var note in group)
             {
                 switch (note)
@@ -112,7 +111,8 @@ public class ChartParser
                         break;
                     case ParserHoldNote pHold:
                         ParseDuration(pHold.Duration, bpm, out var hDuration);
-                        eachGroup.NoteList.Add(new HoldNote(hiSpeed, pHold.Button, pHold.IsBreak, pHold.IsEx, hDuration));
+                        eachGroup.NoteList.Add(
+                            new HoldNote(hiSpeed, pHold.Button, pHold.IsBreak, pHold.IsEx, hDuration));
                         break;
                     case ParserTouchNote pTouch:
                         eachGroup.NoteList.Add(new TouchNote(hiSpeed, pTouch.AreaCode, pTouch.AreaNumber,
@@ -137,7 +137,7 @@ public class ChartParser
                                     ParseDelayDuration(pPart.Duration!, bpm, out var delay, out var duration);
                                     slideChain.Add(new SlideNote.SlidePart(pPart.Type, pPart.TurnButton,
                                         pPart.StopButton, delay, duration));
-                                    
+
                                     if (overallDelay == null)
                                     {
                                         overallDelay = delay;
@@ -155,6 +155,7 @@ public class ChartParser
                                     slideChain.Add(new SlideNote.SlidePart(pPart.Type, pPart.TurnButton,
                                         pPart.StopButton, null, null));
                                 }
+
                                 ParseDelayDuration(pBody.Duration!, bpm, out var delay, out var duration);
                                 slide.SlideBodies.Add(new SlideNote.SlideBody(pBody.IsBreakSlide, slideChain, delay,
                                     duration));
@@ -165,7 +166,7 @@ public class ChartParser
                         break;
                 }
             }
-            
+
             NoteList.Add(eachGroup);
 
             // fake each interval for next group
@@ -188,7 +189,6 @@ public class ChartParser
      * However, so far, because each NoteTiming always calculates its actual time value, it is sufficient for reading
      * chart and serve for playing. But as a syntax parser, it may not be enough (if for chart converter purposes).
      */
-    
     private void ParseDelayDuration(NoteDuration duration, double bpm, out NoteTiming delay, out NoteTiming timing)
     {
         switch (duration.Type)
@@ -260,7 +260,7 @@ public class ChartParser
     private double CalculateTime(NoteTiming timing)
     {
         var lastBpm = BpmList.First();
-        
+
         double time = 0;
 
         foreach (var bpm in BpmList.Skip(1))
@@ -270,15 +270,15 @@ public class ChartParser
                 lastBpm = bpm;
                 break;
             }
-            
+
             var bpmSecDuration = NoteTiming.Subtract(bpm.Timing, lastBpm.Timing, Resolution);
             time += bpmSecDuration.Bar * 240d / lastBpm.Bpm + bpmSecDuration.Beat * 240d / lastBpm.Bpm / Resolution;
             lastBpm = bpm;
         }
-        
+
         var lastBpmSecDuration = NoteTiming.Subtract(timing, lastBpm.Timing, Resolution);
         time += lastBpmSecDuration.Bar * 240d / lastBpm.Bpm + lastBpmSecDuration.Beat * 240d / lastBpm.Bpm / Resolution;
-        
+
         return time;
     }
 

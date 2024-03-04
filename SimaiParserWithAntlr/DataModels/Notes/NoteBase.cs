@@ -28,5 +28,6 @@ public abstract class NoteBase
 
     [JsonConverter(typeof(StringEnumConverter))]
     public NoteTypeEnum Type { get; set; }
+
     public double HiSpeed { get; set; }
 }

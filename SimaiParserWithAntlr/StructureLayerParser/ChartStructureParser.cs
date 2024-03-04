@@ -8,14 +8,6 @@ namespace SimaiParserWithAntlr.StructureLayerParser;
 
 public class ChartStructureParser : StructureParserBaseListener
 {
-    public string RawText { get; private set; }
-    public TextPosition Offset { get; private set; }
-
-    public List<ElementBase> ElementList { get; } = new();
-    // TODO: MAML support
-    public List<WarningInfo> WarningList { get; } = new();
-    public List<ErrorInfo> ErrorList { get; } = new();
-
     public ChartStructureParser(string rawText, TextPosition offset)
     {
         RawText = rawText;
@@ -25,6 +17,15 @@ public class ChartStructureParser : StructureParserBaseListener
     public ChartStructureParser(string rawText) : this(rawText, TextPosition.EMPTY)
     {
     }
+
+    public string RawText { get; private set; }
+    public TextPosition Offset { get; }
+
+    public List<ElementBase> ElementList { get; } = new();
+
+    // TODO: MAML support
+    public List<WarningInfo> WarningList { get; } = new();
+    public List<ErrorInfo> ErrorList { get; } = new();
 
     public override void EnterElement(StructureParser.ElementContext context)
     {
@@ -73,7 +74,7 @@ public class ChartStructureParser : StructureParserBaseListener
 
         base.EnterElement(context);
     }
-    
+
     /**
      * Analyze and verify the structure of the chart elements.
      */
@@ -84,10 +85,10 @@ public class ChartStructureParser : StructureParserBaseListener
         double curHiSpeed = 1;
 
         // We expect to encounter at least one non-empty note block after a bpm element, and then encounter the next new bpm element.
-        bool hasBpmMeetNote = true;
+        var hasBpmMeetNote = true;
         // Or resolution and so on.
-        bool hasResolutionMeetNote = true;
-        bool hasHiSpeedMeetNote = true;
+        var hasResolutionMeetNote = true;
+        var hasHiSpeedMeetNote = true;
 
         foreach (var element in ElementList)
         {
@@ -121,7 +122,7 @@ public class ChartStructureParser : StructureParserBaseListener
             else if (element is HiSpeedElement hiSpeed)
             {
                 curHiSpeed = hiSpeed.HiSpeed;
-                
+
                 if (curBpm == null)
                 {
                     ThrowWarning(hiSpeed.Range, I18nKeyEnum.BpmRequired);
@@ -180,7 +181,7 @@ public class ChartStructureParser : StructureParserBaseListener
 
         return new BpmElement(context.GetText(), range, bpm);
     }
-    
+
     private ResolutionElement? ParseResolution(StructureParser.ResolutionContext context)
     {
         TextPositionRange range = new(context, Offset);
@@ -199,7 +200,7 @@ public class ChartStructureParser : StructureParserBaseListener
 
         return new ResolutionElement(context.GetText(), range, resolution);
     }
-    
+
     private HiSpeedElement? ParseHiSpeed(StructureParser.H_speedContext context)
     {
         TextPositionRange range = new(context, Offset);
@@ -218,7 +219,7 @@ public class ChartStructureParser : StructureParserBaseListener
 
         return new HiSpeedElement(context.GetText(), range, hiSpeed);
     }
-    
+
     private NoteBlockElement? ParseNoteBlock(StructureParser.Note_blockContext context)
     {
         TextPositionRange range = new(context, Offset);
@@ -232,13 +233,13 @@ public class ChartStructureParser : StructureParserBaseListener
 
         return new NoteBlockElement(context.GetText(), range);
     }
-    
+
     private CommentElement? ParseComment(StructureParser.CommentContext context)
     {
         TextPositionRange range = new(context, Offset);
 
-        string rawText = context.GetText();
-        string content = rawText;
+        var rawText = context.GetText();
+        var content = rawText;
         if (content.StartsWith(Constants.COMMENT_SYMBOL))
         {
             content = content[Constants.COMMENT_SYMBOL.Length..];
@@ -281,8 +282,8 @@ public class ChartStructureParser : StructureParserBaseListener
         IParseTree tree = parser.chart();
 
         // Visiting using the listener
-        var walker = (offset == null) 
-            ? new ChartStructureParser(text) 
+        var walker = offset == null
+            ? new ChartStructureParser(text)
             : new ChartStructureParser(text, offset);
         ParseTreeWalker.Default.Walk(walker, tree);
 

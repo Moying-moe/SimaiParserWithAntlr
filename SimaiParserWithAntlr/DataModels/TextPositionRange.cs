@@ -1,15 +1,10 @@
-using System.Text;
 using Antlr4.Runtime;
-using SimaiParserWithAntlr.NoteLayerParser;
 
 namespace SimaiParserWithAntlr.DataModels;
 
 public class TextPositionRange
 {
-    public static readonly TextPositionRange EMPTY = new TextPositionRange(TextPosition.EMPTY, TextPosition.EMPTY);
-
-    public TextPosition Start { get; set; }
-    public TextPosition Stop { get; set; }
+    public static readonly TextPositionRange EMPTY = new(TextPosition.EMPTY, TextPosition.EMPTY);
 
     public TextPositionRange(TextPosition start, TextPosition stop)
     {
@@ -42,6 +37,9 @@ public class TextPositionRange
         ApplyOffset(offset);
     }
 
+    public TextPosition Start { get; set; }
+    public TextPosition Stop { get; set; }
+
     public void ApplyOffset(TextPosition offset)
     {
         Start = offset + Start;
@@ -52,18 +50,18 @@ public class TextPositionRange
     {
         return $"TextPositionRange<start={Start}, stop={Stop}>";
     }
-    
-    int FindNthIndex(string str, string value, int count)
+
+    private int FindNthIndex(string str, string value, int count)
     {
         if (count == 0)
         {
             return 0;
         }
-            
-        int index = -1;
-        for (int i = 0; i < count; i++)
+
+        var index = -1;
+        for (var i = 0; i < count; i++)
         {
-            index = str.IndexOf(value, index+1, StringComparison.Ordinal);
+            index = str.IndexOf(value, index + 1, StringComparison.Ordinal);
             if (index == -1)
             {
                 return str.Length;
@@ -76,23 +74,23 @@ public class TextPositionRange
     public string GetPositionedString(string text, int prefixExtra = 0, int suffixExtra = 0, bool showEllipsis = true,
         bool highlightRange = false)
     {
-        int startLine = Start.Line - 1;
-        int stopLine = Stop.Line;
-        
+        var startLine = Start.Line - 1;
+        var stopLine = Stop.Line;
+
         // 取出 startLine 到 stopLine 之间的文本 并分割为string[]
-        int lineStart = FindNthIndex(text, "\n", startLine) + 1;
-        int lineEnd = FindNthIndex(text, "\n", stopLine);
-        string[] positionedLines = text.Substring(lineStart, lineEnd - lineStart).Split("\n");
-        int[] widths = positionedLines.Select(line => line.Length).ToArray();
+        var lineStart = FindNthIndex(text, "\n", startLine) + 1;
+        var lineEnd = FindNthIndex(text, "\n", stopLine);
+        var positionedLines = text.Substring(lineStart, lineEnd - lineStart).Split("\n");
+        var widths = positionedLines.Select(line => line.Length).ToArray();
 
-        int startCol = Start.Column;
-        int stopCol = Stop.Column;
+        var startCol = Start.Column;
+        var stopCol = Stop.Column;
 
-        int prefixSpace = startCol;
-        int suffixSpace = positionedLines.Last().Length - stopCol;
+        var prefixSpace = startCol;
+        var suffixSpace = positionedLines.Last().Length - stopCol;
 
-        bool hasPrefixEllipsis = showEllipsis && prefixSpace > prefixExtra;
-        bool hasSuffixEllipsis = showEllipsis && suffixSpace > suffixExtra;
+        var hasPrefixEllipsis = showEllipsis && prefixSpace > prefixExtra;
+        var hasSuffixEllipsis = showEllipsis && suffixSpace > suffixExtra;
 
         startCol = Math.Max(0, startCol - prefixExtra);
         stopCol = Math.Min(positionedLines.Last().Length, stopCol + suffixExtra);
@@ -108,7 +106,7 @@ public class TextPositionRange
             positionedLines[0] = positionedLines[0][startCol..];
             positionedLines[^1] = positionedLines[^1][..stopCol];
         }
-            
+
         if (hasPrefixEllipsis)
         {
             positionedLines[0] = "..." + positionedLines[0];
@@ -151,29 +149,30 @@ public class TextPositionRange
                 {
                     positionedLines[0] += string.Join("", Enumerable.Repeat(" ", Start.Column));
                 }
+
                 positionedLines[0] += string.Join("", Enumerable.Repeat("^", widths[0] - Start.Column));
 
-                for (int i = 1; i < positionedLines.Length - 1; i++)
+                for (var i = 1; i < positionedLines.Length - 1; i++)
                 {
                     positionedLines[i] += "\n";
                     if (hasPrefixEllipsis)
                     {
                         positionedLines[i] += string.Join("", Enumerable.Repeat(" ", 3));
                     }
-                    
+
                     positionedLines[i] += string.Join("", Enumerable.Repeat("^", widths[i]));
                 }
-                
+
                 positionedLines[^1] += "\n";
                 if (hasPrefixEllipsis)
                 {
                     positionedLines[^1] += string.Join("", Enumerable.Repeat(" ", 3));
                 }
+
                 positionedLines[^1] += string.Join("", Enumerable.Repeat("^", Stop.Column + 1));
             }
         }
 
         return string.Join("\n", positionedLines);
-
     }
 }

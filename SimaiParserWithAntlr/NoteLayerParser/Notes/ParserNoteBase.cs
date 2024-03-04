@@ -11,6 +11,7 @@ public abstract class ParserNoteBase
     }
 
     public string RawText { get; set; }
+
     // Indicates the position of this note in the text.
     public TextPositionRange Range { get; set; }
 

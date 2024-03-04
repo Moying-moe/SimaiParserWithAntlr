@@ -4,12 +4,12 @@ namespace SimaiParserWithAntlr.StructureLayerParser.Structures;
 
 public class ResolutionElement : ElementBase
 {
-    public int Resolution { get; set; }
-
     public ResolutionElement(string rawText, TextPositionRange range, int resolution) : base(rawText, range)
     {
         Resolution = resolution;
     }
+
+    public int Resolution { get; set; }
 
     public override string GetFormattedString()
     {

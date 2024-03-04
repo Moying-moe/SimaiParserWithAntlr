@@ -21,7 +21,7 @@ public static class SlideTypeEnumExt
         { "w", SlideTypeEnum.Fan },
         { "", SlideTypeEnum.Unknown }
     };
-    
+
     public static bool TryParse(string value, out SlideTypeEnum result)
     {
         if (SLIDE_TYPE_MAP.TryGetValue(value, out result))

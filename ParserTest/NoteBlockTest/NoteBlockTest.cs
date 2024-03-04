@@ -1,8 +1,4 @@
-using SimaiParserWithAntlr.Enums;
-using SimaiParserWithAntlr.I18nModule;
 using SimaiParserWithAntlr.NoteLayerParser;
-using SimaiParserWithAntlr.NoteLayerParser.DataModels;
-using SimaiParserWithAntlr.NoteLayerParser.Notes;
 using Xunit.Abstractions;
 
 namespace ParserTest.NoteBlockTest;
@@ -10,6 +6,11 @@ namespace ParserTest.NoteBlockTest;
 public class NoteBlockTest
 {
     private readonly ITestOutputHelper _testOutputHelper;
+
+    public NoteBlockTest(ITestOutputHelper testOutputHelper)
+    {
+        _testOutputHelper = testOutputHelper;
+    }
 
     /**
      * Debug test entrypoint. Use it with debug breakpoint.
@@ -34,18 +35,20 @@ Ch[8:1],Cfh[#0.5],Chf[120#8:1],C1fh[2.5##8:1],C2h[2.5##1.5],Chfhh[2.5##120#8:1],
         {
             _testOutputHelper.WriteLine($"{noteGroup.GetFormattedString()}");
         }
+
         _testOutputHelper.WriteLine("");
 
         foreach (var warn in parser.WarningList)
         {
             _testOutputHelper.WriteLine(warn.GetFormattedInfo(parser.RawText));
         }
+
         _testOutputHelper.WriteLine("");
         foreach (var err in parser.ErrorList)
         {
             _testOutputHelper.WriteLine(err.GetFormattedInfo(parser.RawText));
         }
     }
-    
+
     // TODO: We need more testcases!
 }

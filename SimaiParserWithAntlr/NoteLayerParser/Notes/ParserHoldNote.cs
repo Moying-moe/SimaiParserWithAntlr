@@ -1,12 +1,12 @@
 using SimaiParserWithAntlr.DataModels;
-using SimaiParserWithAntlr.Enums;
 using SimaiParserWithAntlr.NoteLayerParser.DataModels;
 
 namespace SimaiParserWithAntlr.NoteLayerParser.Notes;
 
 public class ParserHoldNote : ParserNoteBase
 {
-    public ParserHoldNote(string rawText, TextPositionRange range, int button, bool isBreak, bool isEx, NoteDuration duration) : base(rawText, range)
+    public ParserHoldNote(string rawText, TextPositionRange range, int button, bool isBreak, bool isEx,
+        NoteDuration duration) : base(rawText, range)
     {
         Button = button;
         IsBreak = isBreak;
@@ -22,7 +22,7 @@ public class ParserHoldNote : ParserNoteBase
     public override string GetFormattedString()
     {
         var result = $"{Button}";
-        
+
         if (IsBreak)
         {
             result += Constants.BREAK_MARK;
