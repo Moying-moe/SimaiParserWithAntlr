@@ -1,4 +1,4 @@
-using SimaiParserWithAntlr.NoteLayerParser.Enums;
+using SimaiParserWithAntlr.Enums;
 using SimaiParserWithAntlr.NoteLayerParser.Exceptions;
 
 namespace SimaiParserWithAntlr.NoteLayerParser.DataModels;

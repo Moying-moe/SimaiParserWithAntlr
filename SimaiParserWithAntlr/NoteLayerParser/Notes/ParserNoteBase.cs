@@ -2,9 +2,9 @@
 
 namespace SimaiParserWithAntlr.NoteLayerParser.Notes;
 
-public abstract class NoteBase
+public abstract class ParserNoteBase
 {
-    protected NoteBase(string rawText, TextPositionRange range)
+    protected ParserNoteBase(string rawText, TextPositionRange range)
     {
         RawText = rawText;
         Range = range;

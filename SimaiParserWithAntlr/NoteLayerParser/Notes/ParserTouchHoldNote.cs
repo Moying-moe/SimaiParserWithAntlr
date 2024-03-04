@@ -1,25 +1,27 @@
 using SimaiParserWithAntlr.DataModels;
+using SimaiParserWithAntlr.Enums;
 using SimaiParserWithAntlr.NoteLayerParser.DataModels;
-using SimaiParserWithAntlr.NoteLayerParser.Enums;
 
 namespace SimaiParserWithAntlr.NoteLayerParser.Notes;
 
-public class TouchHoldNote : NoteBase
+public class ParserTouchHoldNote : ParserNoteBase
 {
-    public TouchHoldNote(string rawText, TextPositionRange range, AreaEnum area, bool isFirework, NoteDuration duration) : base(rawText, range)
+    public ParserTouchHoldNote(string rawText, TextPositionRange range, AreaCodeEnum areaCode, int areaNumber, bool isFirework, NoteDuration duration) : base(rawText, range)
     {
-        Area = area;
+        AreaCode = areaCode;
+        AreaNumber = areaNumber;
         IsFirework = isFirework;
         Duration = duration;
     }
 
-    public AreaEnum Area { get; set; }
+    public AreaCodeEnum AreaCode { get; set; }
+    public int AreaNumber { get; set; }
     public bool IsFirework { get; set; }
     public NoteDuration Duration { get; set; }
 
     public override string GetFormattedString()
     {
-        var result = $"{AreaEnumExt.ToFormattedString(Area)}";
+        var result = $"{AreaCode}{AreaNumber}";
         
         if (IsFirework)
         {
