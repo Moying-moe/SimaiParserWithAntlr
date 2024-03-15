@@ -1,17 +1,19 @@
 using SimaiParserWithAntlr.DataModels;
 
-namespace SimaiParserWithAntlr.StructureLayerParser.Structures;
-
-public abstract class ElementBase
+namespace SimaiParserWithAntlr.StructureLayerParser.Structures
 {
-    protected ElementBase(string rawText, TextPositionRange range)
+
+    public abstract class ElementBase
     {
-        RawText = rawText;
-        Range = range;
+        protected ElementBase(string rawText, TextPositionRange range)
+        {
+            RawText = rawText;
+            Range = range;
+        }
+
+        public string RawText { get; set; }
+        public TextPositionRange Range { get; set; }
+
+        public abstract string GetFormattedString();
     }
-
-    public string RawText { get; set; }
-    public TextPositionRange Range { get; set; }
-
-    public abstract string GetFormattedString();
 }

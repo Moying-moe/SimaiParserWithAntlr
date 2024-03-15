@@ -1,14 +1,16 @@
-namespace SimaiParserWithAntlr.Enums;
-
-public enum DurationTypeEnum
+namespace SimaiParserWithAntlr.Enums
 {
-    Empty,
-    Fraction,
-    BpmFraction,
-    Time,
-    BpmTime,
-    DelayFraction,
-    DelayTime,
-    DelayBpmFraction,
-    Unknown = -1
+
+    public enum DurationTypeEnum
+    {
+        Empty,
+        Fraction,
+        BpmFraction,
+        Time,
+        BpmTime,
+        DelayFraction,
+        DelayTime,
+        DelayBpmFraction,
+        Unknown = -1
+    }
 }

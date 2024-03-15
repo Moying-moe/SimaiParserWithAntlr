@@ -1,10 +1,11 @@
 using SimaiParserWithAntlr.Utils;
 
-namespace SimaiParserWithAntlr.Enums;
-
-public static class SlideTypeEnumExt
+namespace SimaiParserWithAntlr.Enums
 {
-    private static readonly TwoWayDictionary<string, SlideTypeEnum> SLIDE_TYPE_MAP = new()
+
+    public static class SlideTypeEnumExt
+    {
+        private static readonly TwoWayDictionary<string, SlideTypeEnum> SLIDE_TYPE_MAP = new()
     {
         { "-", SlideTypeEnum.Straight },
         { "<", SlideTypeEnum.CircleLeft },
@@ -22,19 +23,20 @@ public static class SlideTypeEnumExt
         { "", SlideTypeEnum.Unknown }
     };
 
-    public static bool TryParse(string value, out SlideTypeEnum result)
-    {
-        if (SLIDE_TYPE_MAP.TryGetValue(value, out result))
+        public static bool TryParse(string value, out SlideTypeEnum result)
         {
-            return true;
+            if (SLIDE_TYPE_MAP.TryGetValue(value, out result))
+            {
+                return true;
+            }
+
+            result = SlideTypeEnum.Unknown;
+            return false;
         }
 
-        result = SlideTypeEnum.Unknown;
-        return false;
-    }
-
-    public static string ToFormattedString(SlideTypeEnum slideType)
-    {
-        return SLIDE_TYPE_MAP.GetKeyOrDefault(slideType, "");
+        public static string ToFormattedString(SlideTypeEnum slideType)
+        {
+            return SLIDE_TYPE_MAP.GetKeyOrDefault(slideType, "");
+        }
     }
 }

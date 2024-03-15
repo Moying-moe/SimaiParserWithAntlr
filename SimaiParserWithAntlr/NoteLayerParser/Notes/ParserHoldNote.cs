@@ -1,41 +1,43 @@
 using SimaiParserWithAntlr.DataModels;
 using SimaiParserWithAntlr.NoteLayerParser.DataModels;
 
-namespace SimaiParserWithAntlr.NoteLayerParser.Notes;
-
-public class ParserHoldNote : ParserNoteBase
+namespace SimaiParserWithAntlr.NoteLayerParser.Notes
 {
-    public ParserHoldNote(string rawText, TextPositionRange range, int button, bool isBreak, bool isEx,
-        NoteDuration duration) : base(rawText, range)
+
+    public class ParserHoldNote : ParserNoteBase
     {
-        Button = button;
-        IsBreak = isBreak;
-        IsEx = isEx;
-        Duration = duration;
-    }
-
-    public int Button { get; set; }
-    public bool IsBreak { get; set; }
-    public bool IsEx { get; set; }
-    public NoteDuration Duration { get; set; }
-
-    public override string GetFormattedString()
-    {
-        var result = $"{Button}";
-
-        if (IsBreak)
+        public ParserHoldNote(string rawText, TextPositionRange range, int button, bool isBreak, bool isEx,
+            NoteDuration duration) : base(rawText, range)
         {
-            result += Constants.BREAK_MARK;
+            Button = button;
+            IsBreak = isBreak;
+            IsEx = isEx;
+            Duration = duration;
         }
 
-        if (IsEx)
+        public int Button { get; set; }
+        public bool IsBreak { get; set; }
+        public bool IsEx { get; set; }
+        public NoteDuration Duration { get; set; }
+
+        public override string GetFormattedString()
         {
-            result += Constants.EX_MARK;
+            var result = $"{Button}";
+
+            if (IsBreak)
+            {
+                result += Constants.BREAK_MARK;
+            }
+
+            if (IsEx)
+            {
+                result += Constants.EX_MARK;
+            }
+
+            result += Constants.HOLD_MARK;
+            result += Duration.GetFormattedString();
+
+            return result;
         }
-
-        result += Constants.HOLD_MARK;
-        result += Duration.GetFormattedString();
-
-        return result;
     }
 }

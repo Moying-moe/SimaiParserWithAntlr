@@ -1,18 +1,20 @@
 using SimaiParserWithAntlr.DataModels;
 
-namespace SimaiParserWithAntlr.StructureLayerParser.Structures;
-
-public class ResolutionElement : ElementBase
+namespace SimaiParserWithAntlr.StructureLayerParser.Structures
 {
-    public ResolutionElement(string rawText, TextPositionRange range, int resolution) : base(rawText, range)
-    {
-        Resolution = resolution;
-    }
 
-    public int Resolution { get; set; }
-
-    public override string GetFormattedString()
+    public class ResolutionElement : ElementBase
     {
-        return $"{{{Resolution}}}";
+        public ResolutionElement(string rawText, TextPositionRange range, int resolution) : base(rawText, range)
+        {
+            Resolution = resolution;
+        }
+
+        public int Resolution { get; set; }
+
+        public override string GetFormattedString()
+        {
+            return $"{{{Resolution}}}";
+        }
     }
 }

@@ -2,36 +2,38 @@ using SimaiParserWithAntlr.DataModels;
 using SimaiParserWithAntlr.Enums;
 using SimaiParserWithAntlr.NoteLayerParser.DataModels;
 
-namespace SimaiParserWithAntlr.NoteLayerParser.Notes;
-
-public class ParserTouchHoldNote : ParserNoteBase
+namespace SimaiParserWithAntlr.NoteLayerParser.Notes
 {
-    public ParserTouchHoldNote(string rawText, TextPositionRange range, AreaCodeEnum areaCode, int areaNumber,
-        bool isFirework, NoteDuration duration) : base(rawText, range)
+
+    public class ParserTouchHoldNote : ParserNoteBase
     {
-        AreaCode = areaCode;
-        AreaNumber = areaNumber;
-        IsFirework = isFirework;
-        Duration = duration;
-    }
-
-    public AreaCodeEnum AreaCode { get; set; }
-    public int AreaNumber { get; set; }
-    public bool IsFirework { get; set; }
-    public NoteDuration Duration { get; set; }
-
-    public override string GetFormattedString()
-    {
-        var result = $"{AreaCode}{AreaNumber}";
-
-        if (IsFirework)
+        public ParserTouchHoldNote(string rawText, TextPositionRange range, AreaCodeEnum areaCode, int areaNumber,
+            bool isFirework, NoteDuration duration) : base(rawText, range)
         {
-            result += Constants.FIREWORK_MARK;
+            AreaCode = areaCode;
+            AreaNumber = areaNumber;
+            IsFirework = isFirework;
+            Duration = duration;
         }
 
-        result += Constants.HOLD_MARK;
-        result += Duration.GetFormattedString();
+        public AreaCodeEnum AreaCode { get; set; }
+        public int AreaNumber { get; set; }
+        public bool IsFirework { get; set; }
+        public NoteDuration Duration { get; set; }
 
-        return result;
+        public override string GetFormattedString()
+        {
+            var result = $"{AreaCode}{AreaNumber}";
+
+            if (IsFirework)
+            {
+                result += Constants.FIREWORK_MARK;
+            }
+
+            result += Constants.HOLD_MARK;
+            result += Duration.GetFormattedString();
+
+            return result;
+        }
     }
 }
