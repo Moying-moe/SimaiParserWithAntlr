@@ -1,18 +1,20 @@
 using SimaiParserWithAntlr.DataModels;
 
-namespace SimaiParserWithAntlr.StructureLayerParser.Structures;
-
-public class BpmElement : ElementBase
+namespace SimaiParserWithAntlr.StructureLayerParser.Structures
 {
-    public BpmElement(string rawText, TextPositionRange range, double bpm) : base(rawText, range)
-    {
-        Bpm = bpm;
-    }
 
-    public double Bpm { get; set; }
-
-    public override string GetFormattedString()
+    public class BpmElement : ElementBase
     {
-        return $"({Bpm})";
+        public BpmElement(string rawText, TextPositionRange range, double bpm) : base(rawText, range)
+        {
+            Bpm = bpm;
+        }
+
+        public double Bpm { get; set; }
+
+        public override string GetFormattedString()
+        {
+            return $"({Bpm})";
+        }
     }
 }

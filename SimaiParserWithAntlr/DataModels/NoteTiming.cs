@@ -1,175 +1,180 @@
-namespace SimaiParserWithAntlr.DataModels;
+using System.Collections.Generic;
+using System;
 
-public class NoteTiming : IComparable<NoteTiming>, IEquatable<NoteTiming>
+namespace SimaiParserWithAntlr.DataModels
 {
-    public static readonly NoteTiming DEFAULT_TIMING = new(1, 0, 0);
 
-    public NoteTiming(int bar, int beat, double time)
+    public class NoteTiming : IComparable<NoteTiming>, IEquatable<NoteTiming>
     {
-        Bar = bar;
-        Beat = beat;
-        Time = time;
-    }
+        public static readonly NoteTiming DEFAULT_TIMING = new(1, 0, 0);
 
-    public NoteTiming(int bar, int beat)
-    {
-        Bar = bar;
-        Beat = beat;
-    }
-
-    public int Bar { get; set; }
-    public int Beat { get; set; }
-    public double Time { get; set; }
-
-    public int CompareTo(NoteTiming? other)
-    {
-        if (ReferenceEquals(this, other))
+        public NoteTiming(int bar, int beat, double time)
         {
-            return 0;
+            Bar = bar;
+            Beat = beat;
+            Time = time;
         }
 
-        if (ReferenceEquals(null, other))
+        public NoteTiming(int bar, int beat)
         {
-            return 1;
+            Bar = bar;
+            Beat = beat;
         }
 
-        var barComparison = Bar.CompareTo(other.Bar);
-        if (barComparison != 0)
+        public int Bar { get; set; }
+        public int Beat { get; set; }
+        public double Time { get; set; }
+
+        public int CompareTo(NoteTiming? other)
         {
-            return barComparison;
+            if (ReferenceEquals(this, other))
+            {
+                return 0;
+            }
+
+            if (ReferenceEquals(null, other))
+            {
+                return 1;
+            }
+
+            var barComparison = Bar.CompareTo(other.Bar);
+            if (barComparison != 0)
+            {
+                return barComparison;
+            }
+
+            return Beat.CompareTo(other.Beat);
         }
 
-        return Beat.CompareTo(other.Beat);
-    }
-
-    public bool Equals(NoteTiming? other)
-    {
-        return CompareTo(other) == 0;
-    }
-
-    private void Flat(int resolution)
-    {
-        if (Beat >= resolution)
+        public bool Equals(NoteTiming? other)
         {
-            Bar += Beat / resolution;
-            Beat %= resolution;
+            return CompareTo(other) == 0;
         }
 
-        if (Beat < 0)
+        private void Flat(int resolution)
         {
-            Bar -= -Beat / resolution;
-            Beat = Beat % resolution + resolution;
-        }
-    }
+            if (Beat >= resolution)
+            {
+                Bar += Beat / resolution;
+                Beat %= resolution;
+            }
 
-    public static NoteTiming FromBeat(int beat, int resolution)
-    {
-        var result = new NoteTiming(0, beat);
-        result.Flat(resolution);
-        return result;
-    }
-
-    public void Add(NoteTiming other, int resolution)
-    {
-        Bar += other.Bar;
-        Beat += other.Beat;
-        Time += other.Time;
-
-        Flat(resolution);
-    }
-
-    public void Subtract(NoteTiming other, int resolution)
-    {
-        Bar -= other.Bar;
-        Beat -= other.Beat;
-        Time -= other.Time;
-
-        Flat(resolution);
-    }
-
-    public NoteTiming Clone()
-    {
-        return new NoteTiming(Bar, Beat, Time);
-    }
-
-    public static NoteTiming Add(NoteTiming a, NoteTiming b, int resolution)
-    {
-        var result = a.Clone();
-        result.Add(b, resolution);
-
-        return result;
-    }
-
-    public static NoteTiming Subtract(NoteTiming a, NoteTiming b, int resolution)
-    {
-        var result = a.Clone();
-        result.Subtract(b, resolution);
-
-        return result;
-    }
-
-    public static bool operator >(NoteTiming a, NoteTiming b)
-    {
-        return a.CompareTo(b) > 0;
-    }
-
-    public static bool operator <(NoteTiming a, NoteTiming b)
-    {
-        return a.CompareTo(b) < 0;
-    }
-
-    public static bool operator >=(NoteTiming a, NoteTiming b)
-    {
-        return a.CompareTo(b) >= 0;
-    }
-
-    public static bool operator <=(NoteTiming a, NoteTiming b)
-    {
-        return a.CompareTo(b) <= 0;
-    }
-
-    public override string ToString()
-    {
-        return $"{nameof(Bar)}: {Bar}, {nameof(Beat)}: {Beat}, {nameof(Time)}: {Time}";
-    }
-
-    public static bool operator ==(NoteTiming? a, NoteTiming? b)
-    {
-        if (ReferenceEquals(null, a))
-        {
-            return ReferenceEquals(null, b);
+            if (Beat < 0)
+            {
+                Bar -= -Beat / resolution;
+                Beat = Beat % resolution + resolution;
+            }
         }
 
-        return a.CompareTo(b) == 0;
-    }
-
-    public static bool operator !=(NoteTiming? a, NoteTiming? b)
-    {
-        return !(a == b);
-    }
-
-    public override bool Equals(object? obj)
-    {
-        if (ReferenceEquals(null, obj))
+        public static NoteTiming FromBeat(int beat, int resolution)
         {
-            return false;
+            var result = new NoteTiming(0, beat);
+            result.Flat(resolution);
+            return result;
         }
 
-        if (ReferenceEquals(this, obj))
+        public void Add(NoteTiming other, int resolution)
         {
-            return true;
+            Bar += other.Bar;
+            Beat += other.Beat;
+            Time += other.Time;
+
+            Flat(resolution);
         }
 
-        if (obj.GetType() != GetType())
+        public void Subtract(NoteTiming other, int resolution)
         {
-            return false;
+            Bar -= other.Bar;
+            Beat -= other.Beat;
+            Time -= other.Time;
+
+            Flat(resolution);
         }
 
-        return Equals((NoteTiming)obj);
-    }
+        public NoteTiming Clone()
+        {
+            return new NoteTiming(Bar, Beat, Time);
+        }
 
-    public override int GetHashCode()
-    {
-        return HashCode.Combine(Bar, Beat);
+        public static NoteTiming Add(NoteTiming a, NoteTiming b, int resolution)
+        {
+            var result = a.Clone();
+            result.Add(b, resolution);
+
+            return result;
+        }
+
+        public static NoteTiming Subtract(NoteTiming a, NoteTiming b, int resolution)
+        {
+            var result = a.Clone();
+            result.Subtract(b, resolution);
+
+            return result;
+        }
+
+        public static bool operator >(NoteTiming a, NoteTiming b)
+        {
+            return a.CompareTo(b) > 0;
+        }
+
+        public static bool operator <(NoteTiming a, NoteTiming b)
+        {
+            return a.CompareTo(b) < 0;
+        }
+
+        public static bool operator >=(NoteTiming a, NoteTiming b)
+        {
+            return a.CompareTo(b) >= 0;
+        }
+
+        public static bool operator <=(NoteTiming a, NoteTiming b)
+        {
+            return a.CompareTo(b) <= 0;
+        }
+
+        public override string ToString()
+        {
+            return $"{nameof(Bar)}: {Bar}, {nameof(Beat)}: {Beat}, {nameof(Time)}: {Time}";
+        }
+
+        public static bool operator ==(NoteTiming? a, NoteTiming? b)
+        {
+            if (ReferenceEquals(null, a))
+            {
+                return ReferenceEquals(null, b);
+            }
+
+            return a.CompareTo(b) == 0;
+        }
+
+        public static bool operator !=(NoteTiming? a, NoteTiming? b)
+        {
+            return !(a == b);
+        }
+
+        public override bool Equals(object? obj)
+        {
+            if (ReferenceEquals(null, obj))
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(this, obj))
+            {
+                return true;
+            }
+
+            if (obj.GetType() != GetType())
+            {
+                return false;
+            }
+
+            return Equals((NoteTiming)obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Bar, Beat);
+        }
     }
 }

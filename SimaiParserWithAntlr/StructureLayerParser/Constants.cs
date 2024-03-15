@@ -1,6 +1,8 @@
-namespace SimaiParserWithAntlr.StructureLayerParser;
-
-public static class Constants
+namespace SimaiParserWithAntlr.StructureLayerParser
 {
-    public const string COMMENT_SYMBOL = "||";
+
+    public static class Constants
+    {
+        public const string COMMENT_SYMBOL = "||";
+    }
 }

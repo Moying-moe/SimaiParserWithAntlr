@@ -1,19 +1,21 @@
 ﻿using SimaiParserWithAntlr.DataModels;
 
-namespace SimaiParserWithAntlr.NoteLayerParser.Notes;
-
-public abstract class ParserNoteBase
+namespace SimaiParserWithAntlr.NoteLayerParser.Notes
 {
-    protected ParserNoteBase(string rawText, TextPositionRange range)
+
+    public abstract class ParserNoteBase
     {
-        RawText = rawText;
-        Range = range;
+        protected ParserNoteBase(string rawText, TextPositionRange range)
+        {
+            RawText = rawText;
+            Range = range;
+        }
+
+        public string RawText { get; set; }
+
+        // Indicates the position of this note in the text.
+        public TextPositionRange Range { get; set; }
+
+        public abstract string GetFormattedString();
     }
-
-    public string RawText { get; set; }
-
-    // Indicates the position of this note in the text.
-    public TextPositionRange Range { get; set; }
-
-    public abstract string GetFormattedString();
 }

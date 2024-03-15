@@ -1,11 +1,13 @@
-namespace SimaiParserWithAntlr.Enums;
-
-public enum AreaCodeEnum
+namespace SimaiParserWithAntlr.Enums
 {
-    A,
-    B,
-    C,
-    D,
-    E,
-    Unknown = -1
+
+    public enum AreaCodeEnum
+    {
+        A,
+        B,
+        C,
+        D,
+        E,
+        Unknown = -1
+    }
 }

@@ -1,23 +1,25 @@
 using SimaiParserWithAntlr.DataModels;
 
-namespace SimaiParserWithAntlr.StructureLayerParser.Structures;
-
-public class CommentElement : ElementBase
+namespace SimaiParserWithAntlr.StructureLayerParser.Structures
 {
-    public CommentElement(string rawText, TextPositionRange range, string content) : base(rawText, range)
-    {
-        Content = content;
-    }
 
-    public string Content { get; set; }
-
-    public override string GetFormattedString()
+    public class CommentElement : ElementBase
     {
-        if (Content.StartsWith(" "))
+        public CommentElement(string rawText, TextPositionRange range, string content) : base(rawText, range)
         {
-            return Constants.COMMENT_SYMBOL + Content;
+            Content = content;
         }
 
-        return Constants.COMMENT_SYMBOL + " " + Content;
+        public string Content { get; set; }
+
+        public override string GetFormattedString()
+        {
+            if (Content.StartsWith(" "))
+            {
+                return Constants.COMMENT_SYMBOL + Content;
+            }
+
+            return Constants.COMMENT_SYMBOL + " " + Content;
+        }
     }
 }

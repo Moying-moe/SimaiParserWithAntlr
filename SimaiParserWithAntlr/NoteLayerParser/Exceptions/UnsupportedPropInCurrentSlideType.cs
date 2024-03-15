@@ -1,16 +1,19 @@
-namespace SimaiParserWithAntlr.NoteLayerParser.Exceptions;
-
-public class UnsupportedPropInCurrentSlideType : Exception
+using System;
+namespace SimaiParserWithAntlr.NoteLayerParser.Exceptions
 {
-    public UnsupportedPropInCurrentSlideType() : this("Unsupported property in current slide type!")
-    {
-    }
 
-    public UnsupportedPropInCurrentSlideType(string? message) : base(message)
+    public class UnsupportedPropInCurrentSlideType : Exception
     {
-    }
+        public UnsupportedPropInCurrentSlideType() : this("Unsupported property in current slide type!")
+        {
+        }
 
-    public UnsupportedPropInCurrentSlideType(string? message, Exception? innerException) : base(message, innerException)
-    {
+        public UnsupportedPropInCurrentSlideType(string? message) : base(message)
+        {
+        }
+
+        public UnsupportedPropInCurrentSlideType(string? message, Exception? innerException) : base(message, innerException)
+        {
+        }
     }
 }

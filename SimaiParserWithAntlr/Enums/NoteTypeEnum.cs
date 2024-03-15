@@ -1,11 +1,13 @@
-namespace SimaiParserWithAntlr.Enums;
-
-public enum NoteTypeEnum
+namespace SimaiParserWithAntlr.Enums
 {
-    Tap,
-    Hold,
-    Touch,
-    TouchHold,
-    Slide,
-    Unknown = -1
+
+    public enum NoteTypeEnum
+    {
+        Tap,
+        Hold,
+        Touch,
+        TouchHold,
+        Slide,
+        Unknown = -1
+    }
 }
