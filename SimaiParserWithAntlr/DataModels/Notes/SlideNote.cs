@@ -1,5 +1,6 @@
 using SimaiParserWithAntlr.Enums;
 using SimaiParserWithAntlr.Utils;
+using System.Collections.Generic;
 
 namespace SimaiParserWithAntlr.DataModels.Notes
 {

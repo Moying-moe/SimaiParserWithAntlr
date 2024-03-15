@@ -1,5 +1,7 @@
 ﻿using SimaiParserWithAntlr.DataModels;
 using SimaiParserWithAntlr.NoteLayerParser.Notes;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace SimaiParserWithAntlr.NoteLayerParser.DataModels
 {

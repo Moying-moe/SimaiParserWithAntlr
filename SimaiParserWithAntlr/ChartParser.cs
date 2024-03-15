@@ -7,6 +7,8 @@ using SimaiParserWithAntlr.NoteLayerParser.DataModels;
 using SimaiParserWithAntlr.NoteLayerParser.Notes;
 using SimaiParserWithAntlr.StructureLayerParser;
 using SimaiParserWithAntlr.StructureLayerParser.Structures;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace SimaiParserWithAntlr
 {

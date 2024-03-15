@@ -6,6 +6,7 @@ using SimaiParserWithAntlr.I18nModule;
 using SimaiParserWithAntlr.NoteLayerParser.DataModels;
 using SimaiParserWithAntlr.NoteLayerParser.Notes;
 using SimaiParserWithAntlr.Utils;
+using System.Collections.Generic;
 
 namespace SimaiParserWithAntlr.NoteLayerParser
 {

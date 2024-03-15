@@ -3,7 +3,7 @@ using Antlr4.Runtime.Tree;
 using SimaiParserWithAntlr.DataModels;
 using SimaiParserWithAntlr.I18nModule;
 using SimaiParserWithAntlr.StructureLayerParser.Structures;
-
+using System.Collections.Generic;
 namespace SimaiParserWithAntlr.StructureLayerParser
 {
 

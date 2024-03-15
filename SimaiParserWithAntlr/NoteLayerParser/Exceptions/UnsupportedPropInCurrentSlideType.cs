@@ -1,3 +1,4 @@
+using System;
 namespace SimaiParserWithAntlr.NoteLayerParser.Exceptions
 {
 

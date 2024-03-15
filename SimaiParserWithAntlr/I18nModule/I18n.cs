@@ -2,6 +2,10 @@ using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
 using IniParser;
+using System.Collections.Generic;
+using System.IO;
+using System;
+using System.Linq;
 
 namespace SimaiParserWithAntlr.I18nModule
 {
