@@ -4,6 +4,13 @@
         <TargetFramework>net6.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <Version>0.0.1-alpha.2</Version>
+        <Title>SimaiParserWithAntlr</Title>
+        <Authors>Moying-moe</Authors>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageReadmeFile>readme.md</PackageReadmeFile>
+        <RepositoryUrl>https://github.com/Moying-moe/SimaiParserWithAntlr</RepositoryUrl>
+        <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     </PropertyGroup>
 
     <ItemGroup>
@@ -13,6 +20,7 @@
         </None>
         <None Include="StructureLayerParser\generate.sh"/>
         <None Include="StructureLayerParser\Rules\StructureLexer.g4"/>
+        <None Include="..\readme.md" Pack="true" PackagePath="\"/>
     </ItemGroup>
 
     <ItemGroup>
