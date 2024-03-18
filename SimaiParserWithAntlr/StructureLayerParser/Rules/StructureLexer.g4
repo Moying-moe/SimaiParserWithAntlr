@@ -5,7 +5,7 @@ RESOLUTION_START        : '{' -> pushMode(RESOLUTION) ;
 COMMENT_SYMBOL          : '||' ;
 
 H_SPEED_START           : '<HS*' -> pushMode(H_SPEED) ;
-MAML_OPEN_START         : '<' -> pushMode(MAML_OPEN) ;
+MAML_OPEN_START         : '<-' -> pushMode(MAML_OPEN) ;
 MAML_CLOSE_START        : '</' -> pushMode(MAML_CLOSE) ;
 
 NEWLINE                 : '\r\n' | [\r\n] ;
