@@ -170,6 +170,6 @@ public class NoteTiming : IComparable<NoteTiming>, IEquatable<NoteTiming>
 
     public override int GetHashCode()
     {
-        return HashCode.Combine(Bar, Beat);
+        return (Bar, Beat).GetHashCode();
     }
 }
