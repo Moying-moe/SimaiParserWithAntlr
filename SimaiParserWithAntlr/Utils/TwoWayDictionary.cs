@@ -33,10 +33,10 @@ public class TwoWayDictionary<TKey, TValue> : IEnumerable<KeyValuePair<TKey, TVa
 
     public TValue GetValueOrDefault(TKey key, TValue defaultValue)
     {
-        return _keyToValueDict.GetValueOrDefault(key, defaultValue);
+        return _keyToValueDict.TryGetValue(key, out var result) ? result : defaultValue;
     }
 
-    public bool TryGetValue(TKey key, [MaybeNullWhen(false)] out TValue result)
+    public bool TryGetValue(TKey key, out TValue result)
     {
         return _keyToValueDict.TryGetValue(key, out result);
     }
@@ -53,10 +53,10 @@ public class TwoWayDictionary<TKey, TValue> : IEnumerable<KeyValuePair<TKey, TVa
 
     public TKey GetKeyOrDefault(TValue value, TKey defaultKey)
     {
-        return _valueToKeyDict.GetValueOrDefault(value, defaultKey);
+        return _valueToKeyDict.TryGetValue(value, out var result) ? result : defaultKey;
     }
 
-    public bool TryGetKey(TValue value, [MaybeNullWhen(false)] out TKey result)
+    public bool TryGetKey(TValue value, out TKey result)
     {
         return _valueToKeyDict.TryGetValue(value, out result);
     }

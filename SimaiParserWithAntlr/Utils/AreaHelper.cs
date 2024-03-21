@@ -13,8 +13,8 @@ public class AreaHelper
             return true;
         }
 
-        if (value.Length != 2 || !Enum.TryParse(value[..1], out areaCode) ||
-            !int.TryParse(value[1..], out areaNumber) || !ButtonHelper.IsButtonNumberValid(areaNumber))
+        if (value.Length != 2 || !Enum.TryParse(value.Substring(0, 1), out areaCode) ||
+            !int.TryParse(value.Substring(1), out areaNumber) || !ButtonHelper.IsButtonNumberValid(areaNumber))
         {
             areaCode = AreaCodeEnum.Unknown;
             areaNumber = ButtonHelper.UNKNOWN_BUTTON;
