@@ -80,7 +80,7 @@ public class TextPositionRange
         // 取出 startLine 到 stopLine 之间的文本 并分割为string[]
         var lineStart = FindNthIndex(text, "\n", startLine) + 1;
         var lineEnd = FindNthIndex(text, "\n", stopLine);
-        var positionedLines = text.Substring(lineStart, lineEnd - lineStart).Split("\n");
+        var positionedLines = text.Substring(lineStart, lineEnd - lineStart).Split('\n');
         var widths = positionedLines.Select(line => line.Length).ToArray();
 
         var startCol = Start.Column;
@@ -103,8 +103,8 @@ public class TextPositionRange
         else
         {
             // 存在多行
-            positionedLines[0] = positionedLines[0][startCol..];
-            positionedLines[^1] = positionedLines[^1][..stopCol];
+            positionedLines[0] = positionedLines[0].Substring(startCol);
+            positionedLines[positionedLines.Length - 1] = positionedLines[positionedLines.Length - 1].Substring(0, stopCol);
         }
 
         if (hasPrefixEllipsis)
@@ -119,7 +119,7 @@ public class TextPositionRange
 
         if (hasSuffixEllipsis)
         {
-            positionedLines[^1] += "...";
+            positionedLines[positionedLines.Length - 1] += "...";
         }
 
         if (highlightRange)
@@ -163,13 +163,13 @@ public class TextPositionRange
                     positionedLines[i] += string.Join("", Enumerable.Repeat("^", widths[i]));
                 }
 
-                positionedLines[^1] += "\n";
+                positionedLines[positionedLines.Length - 1] += "\n";
                 if (hasPrefixEllipsis)
                 {
-                    positionedLines[^1] += string.Join("", Enumerable.Repeat(" ", 3));
+                    positionedLines[positionedLines.Length - 1] += string.Join("", Enumerable.Repeat(" ", 3));
                 }
 
-                positionedLines[^1] += string.Join("", Enumerable.Repeat("^", Stop.Column + 1));
+                positionedLines[positionedLines.Length - 1] += string.Join("", Enumerable.Repeat("^", Stop.Column + 1));
             }
         }
 

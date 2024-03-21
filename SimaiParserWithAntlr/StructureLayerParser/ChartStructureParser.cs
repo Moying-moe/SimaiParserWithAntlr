@@ -242,7 +242,7 @@ public class ChartStructureParser : StructureParserBaseListener
         var content = rawText;
         if (content.StartsWith(Constants.COMMENT_SYMBOL))
         {
-            content = content[Constants.COMMENT_SYMBOL.Length..];
+            content = content.Substring(Constants.COMMENT_SYMBOL.Length);
         }
 
         if (!content.StartsWith(" "))

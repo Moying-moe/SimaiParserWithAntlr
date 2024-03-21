@@ -1,10 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net6.0</TargetFramework>
+        <TargetFramework>net471</TargetFramework>
+        <LangVersion>10.0</LangVersion>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <Version>0.0.1-alpha.2</Version>
+        <Version>0.0.1-alpha.3</Version>
         <Title>SimaiParserWithAntlr</Title>
         <Authors>Moying-moe</Authors>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
